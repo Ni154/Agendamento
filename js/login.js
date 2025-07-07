@@ -12,12 +12,6 @@ form.addEventListener("submit", async (e) => {
   const usuario = document.getElementById("usuario").value.trim();
   const senha = document.getElementById("senha").value.trim();
 
-  if (!usuario || !senha) {
-    msg.textContent = "Informe usuário e senha!";
-    msg.style.color = "red";
-    return;
-  }
-
   try {
     const { data, error } = await supabase
       .from("usuarios")
@@ -38,6 +32,5 @@ form.addEventListener("submit", async (e) => {
   } catch (err) {
     msg.textContent = "Erro ao tentar login.";
     msg.style.color = "red";
-    console.error(err);
   }
 });
