@@ -3,15 +3,15 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Studio Depilação | Agendamentos</title>
-  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div class="layout">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <img src="assets/logo_clinica.png" alt="Logo" class="logo"/>
+      <img src="assets/logo_clinica.png" alt="Logo" class="logo" />
       <nav class="menu">
         <button onclick="navegar('dashboard')">🏠 Início</button>
         <button onclick="navegar('clientes')">🧍 Clientes</button>
@@ -26,27 +26,39 @@
 
     <!-- Conteúdo -->
     <main class="conteudo">
-      <h1>📅 Novo Agendamento</h1>
-      <form id="formAgendamento" onsubmit="cadastrarAgendamento(event)">
-        <div class="form-grid">
-          <input type="text" name="nome_cliente" placeholder="Nome do Cliente" required />
-          <input type="date" name="data" required />
-          <input type="time" name="hora" required />
-          <input type="text" name="servicos" placeholder="Serviços (separados por vírgula)" required />
-          <select name="status">
-            <option value="Pendente">Pendente</option>
-            <option value="Confirmado">Confirmado</option>
-            <option value="Finalizado">Finalizado</option>
-            <option value="Cancelado">Cancelado</option>
-          </select>
-        </div>
-        <button type="submit">💾 Agendar</button>
-      </form>
+      <h1>📅 Agendamentos</h1>
 
-      <h2>📋 Lista de Agendamentos</h2>
-      <div id="lista-agendamentos" class="lista-container">
-        <!-- Conteúdo via JS -->
-      </div>
+      <section id="lista-agendamentos">
+        <h2>📋 Agendamentos Existentes</h2>
+        <select id="select-agendamento" onchange="mostrarAgendamento()">
+          <option value="">Selecione um agendamento para reagendar</option>
+        </select>
+
+        <div id="detalhes-agendamento" style="margin-top: 1rem;">
+          <!-- Dados do agendamento para reagendar -->
+        </div>
+      </section>
+
+      <hr />
+
+      <section id="novo-agendamento">
+        <h2>➕ Novo Agendamento</h2>
+        <form id="form-agendamento" onsubmit="criarAgendamento(event)">
+          <label for="cliente">Cliente:</label>
+          <select id="cliente" name="cliente" required></select><br/><br/>
+
+          <label for="data">Data:</label>
+          <input type="date" id="data" name="data" required /><br/><br/>
+
+          <label for="hora">Hora:</label>
+          <input type="time" id="hora" name="hora" required /><br/><br/>
+
+          <label for="servicos">Serviços:</label>
+          <select id="servicos" name="servicos" multiple required></select><br/><br/>
+
+          <button type="submit">Agendar</button>
+        </form>
+      </section>
     </main>
   </div>
 
@@ -55,4 +67,3 @@
   <script src="js/agendamentos.js"></script>
 </body>
 </html>
-
