@@ -1,5 +1,5 @@
 const SUPABASE_URL = "https://stqbqsrznhhtbvjeugyb.supabase.co";
-const SUPABASE_KEY = "sb_publishable_XmW5t1y3YcJWzCYlvRtLDA_LcJSs4gH;
+const SUPABASE_KEY = "sb_publishable_XmW5t1y3YcJWzCYlvRtLDA_LcJSs4gH";
 
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -9,8 +9,14 @@ const msg = document.getElementById("msg");
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const usuario = document.getElementById("usuario").value;
-  const senha = document.getElementById("senha").value;
+  const usuario = document.getElementById("usuario").value.trim();
+  const senha = document.getElementById("senha").value.trim();
+
+  if (!usuario || !senha) {
+    msg.textContent = "Informe usuário e senha!";
+    msg.style.color = "red";
+    return;
+  }
 
   try {
     const { data, error } = await supabase
@@ -26,11 +32,12 @@ form.addEventListener("submit", async (e) => {
       return;
     }
 
-    // Login OK, redireciona
+    // Login OK
     localStorage.setItem("usuario_logado", JSON.stringify(data));
     window.location.href = "dashboard.html";
   } catch (err) {
     msg.textContent = "Erro ao tentar login.";
     msg.style.color = "red";
+    console.error(err);
   }
 });
