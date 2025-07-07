@@ -1,1 +1,43 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studio Depilação | Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <img src="assets/logo_clinica.png" alt="Logo" class="logo" />
+      <nav class="menu">
+        <button onclick="navegar('dashboard')">🏠 Início</button>
+        <button onclick="navegar('clientes')">🧍 Clientes</button>
+        <button onclick="navegar('agendamentos')">📅 Agendamentos</button>
+        <button onclick="navegar('produtos')">📦 Produtos</button>
+        <button onclick="navegar('servicos')">💼 Serviços</button>
+        <button onclick="navegar('vendas')">🛒 Vendas</button>
+        <button onclick="navegar('relatorios')">📊 Relatórios</button>
+        <button onclick="logout()">🚪 Sair</button>
+      </nav>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="conteudo">
+      <h1>📅 Agendamentos de Hoje</h1>
+      <div id="lista-agendamentos" class="agendamentos-container">
+        <!-- Lista preenchida por JS -->
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    carregarAgendamentosHoje();
+  </script>
+</body>
+</html>
 
