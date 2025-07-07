@@ -9,17 +9,18 @@
 <body>
   <div class="login-container">
     <img src="assets/logo_clinica.png" alt="Logo Clínica" class="logo" />
-    <h1>Bem-vindo ao Studio Depilação</h1>
-    <form id="loginForm">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" placeholder="seu@email.com" required />
-      <label for="password">Senha</label>
-      <input type="password" id="password" name="password" placeholder="••••••••" required />
+    <h1>Login Administrativo</h1>
+
+    <form id="login-form">
+      <input type="text" id="usuario" placeholder="Usuário" required />
+      <input type="password" id="senha" placeholder="Senha" required />
       <button type="submit">Entrar</button>
     </form>
+
     <div id="msg"></div>
   </div>
 
-  <script src="js/login.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="js/login.js"></script>
 </body>
 </html>
