@@ -291,5 +291,190 @@ document.addEventListener("DOMContentLoaded", () => {
         opt.textContent = `${p.nome} (Estoque: ${p.quantidade})`;
         selectProdutos.appendChild(opt);
       });
+    } catch (err) {
+      console.error("Erro ao carregar produtos:", err.message);
+    }
+  }
+
+  // Carregar serviços para nova venda
+  async function carregarServicos() {
+    selectServicos.innerHTML = "";
+    servicosQuantidade.innerHTML = "";
+    try {
+      let { data, error } = await supabase.from("servicos").select("id, nome, valor");
+      if (error) throw error;
+      servicosData = data;
+      data.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.id;
+        opt.textContent = s.nome;
+        selectServicos.appendChild(opt);
+      });
+    } catch (err) {
+      console.error("Erro ao carregar serviços:", err.message);
+    }
+  }
+
+  // Seleção múltipla produtos - criar inputs quantidade
+  selectProdutos.addEventListener("change", () => {
+    produtosQuantidade.innerHTML = "";
+    Array.from(selectProdutos.selectedOptions).forEach(opt => {
+      const produto = produtosData.find(p => p.id == opt.value);
+      if (!produto) return;
+
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <label>${produto.nome}:
+          <input type="number" min="1" max="${produto.quantidade}" value="1" data-id="${produto.id}" data-preco="${produto.preco_venda}" />
+        </label>
+      `;
+      produtosQuantidade.appendChild(div);
+    });
+    atualizarTotalVenda();
+  });
+
+  // Seleção múltipla serviços - criar inputs quantidade
+  selectServicos.addEventListener("change", () => {
+    servicosQuantidade.innerHTML = "";
+    Array.from(selectServicos.selectedOptions).forEach(opt => {
+      const servico = servicosData.find(s => s.id == opt.value);
+      if (!servico) return;
+
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <label>${servico.nome}:
+          <input type="number" min="1" value="1" data-id="${servico.id}" data-preco="${servico.valor}" />
+        </label>
+      `;
+      servicosQuantidade.appendChild(div);
+    });
+    atualizarTotalVenda();
+  });
+
+  // Atualiza o total na nova venda
+  function atualizarTotalVenda() {
+    let total = 0;
+    produtosQuantidade.querySelectorAll("input").forEach(input => {
+      const preco = parseFloat(input.dataset.preco);
+      const qtd = parseInt(input.value);
+      if (!isNaN(preco) && !isNaN(qtd)) total += preco * qtd;
+    });
+    servicosQuantidade.querySelectorAll("input").forEach(input => {
+      const preco = parseFloat(input.dataset.preco);
+      const qtd = parseInt(input.value);
+      if (!isNaN(preco) && !isNaN(qtd)) total += preco * qtd;
+    });
+    totalVenda.textContent = total.toFixed(2).replace(".", ",");
+  }
+
+  produtosQuantidade.addEventListener("input", atualizarTotalVenda);
+  servicosQuantidade.addEventListener("input", atualizarTotalVenda);
+
+  // Finalizar nova venda
+  finalizarNovaVendaBtn.addEventListener("click", async () => {
+    const clienteId = parseInt(selectCliente.value);
+    if (!clienteId) return alert("Selecione um cliente.");
+
+    // Itens produtos
+    let itensProdutos = [];
+    produtosQuantidade.querySelectorAll("input").forEach(input => {
+      const id = parseInt(input.dataset.id);
+      const qtd = parseInt(input.value);
+      if (qtd > 0) itensProdutos.push({ id, quantidade: qtd });
+    });
+
+    // Itens serviços
+    let itensServicos = [];
+    servicosQuantidade.querySelectorAll("input").forEach(input => {
+      const id = parseInt(input.dataset.id);
+      const qtd = parseInt(input.value);
+      if (qtd > 0) itensServicos.push({ id, quantidade: qtd });
+    });
+
+    if (itensProdutos.length === 0 && itensServicos.length === 0) {
+      return alert("Selecione ao menos um produto ou serviço.");
     }
 
+    const total = parseFloat(totalVenda.textContent.replace(",", "."));
+
+    try {
+      const dataVenda = new Date().toISOString();
+
+      // Inserir venda
+      const { data: venda, error: errVenda } = await supabase
+        .from("vendas")
+        .insert([{ cliente_id: clienteId, data: dataVenda, total }])
+        .select()
+        .single();
+      if (errVenda) throw errVenda;
+
+      // Inserir itens produtos
+      for (const item of itensProdutos) {
+        const prod = produtosData.find(p => p.id === item.id);
+        if (!prod) continue;
+
+        const { error: errItem } = await supabase
+          .from("venda_itens")
+          .insert([{
+            venda_id: venda.id,
+            tipo: "produto",
+            item_id: prod.id,
+            quantidade: item.quantidade,
+            preco: prod.preco_venda,
+          }]);
+        if (errItem) throw errItem;
+      }
+
+      // Inserir itens serviços
+      for (const item of itensServicos) {
+        const serv = servicosData.find(s => s.id === item.id);
+        if (!serv) continue;
+
+        const { error: errItem } = await supabase
+          .from("venda_itens")
+          .insert([{
+            venda_id: venda.id,
+            tipo: "servico",
+            item_id: serv.id,
+            quantidade: item.quantidade,
+            preco: serv.valor,
+          }]);
+        if (errItem) throw errItem;
+      }
+
+      alert("Venda realizada com sucesso!");
+      // Resetar campos
+      selectCliente.selectedIndex = 0;
+      selectProdutos.selectedIndex = -1;
+      selectServicos.selectedIndex = -1;
+      produtosQuantidade.innerHTML = "";
+      servicosQuantidade.innerHTML = "";
+      totalVenda.textContent = "0,00";
+    } catch (err) {
+      alert("Erro ao finalizar venda: " + err.message);
+    }
+  });
+
+  // Botão nova venda (limpar campos)
+  novaVendaBtn.addEventListener("click", () => {
+    selectCliente.selectedIndex = 0;
+    selectProdutos.selectedIndex = -1;
+    selectServicos.selectedIndex = -1;
+    produtosQuantidade.innerHTML = "";
+    servicosQuantidade.innerHTML = "";
+    totalVenda.textContent = "0,00";
+  });
+
+  // Carregamento inicial
+  // Carrega serviços para agendamento
+  (async () => {
+    try {
+      let { data, error } = await supabase.from("servicos").select("id, nome, valor");
+      if (error) throw error;
+      servicosData = data;
+    } catch (err) {
+      console.error("Erro ao carregar serviços:", err.message);
+    }
+    carregarAgendamentos();
+  })();
+});
