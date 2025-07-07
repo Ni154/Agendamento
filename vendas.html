@@ -1,1 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vendas - Studio Depilação</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script defer src="js/vendas.js"></script>
+</head>
+<body>
+  <header>
+    <img src="assets/logo_clinica.png" alt="Logo Clínica" class="logo" />
+    <h1>🛒 Painel de Vendas</h1>
+  </header>
+
+  <main>
+    <section class="vendas-options">
+      <label><input type="radio" name="vendaTipo" value="agendamento" checked /> Usar Agendamento</label>
+      <label><input type="radio" name="vendaTipo" value="novaVenda" /> Nova Venda</label>
+    </section>
+
+    <section id="agendamentoSection" class="venda-section">
+      <h2>Selecionar Agendamento</h2>
+      <select id="selectAgendamento" aria-label="Selecionar agendamento pendente"></select>
+
+      <div id="detalhesAgendamento" class="detalhes-venda"></div>
+      <button id="finalizarVendaBtn" class="btn-primary">Finalizar Venda</button>
+
+      <div id="opcoesAgendamento" style="margin-top: 1rem;">
+        <label><input type="radio" name="posVenda" value="nenhum" checked /> Nenhum</label>
+        <label><input type="radio" name="posVenda" value="reagendar" /> Reagendar</label>
+        <label><input type="radio" name="posVenda" value="cancelar" /> Cancelar</label>
+        <div id="reagendarInputs" style="display:none; margin-top:0.5rem;">
+          <input type="date" id="novaData" />
+          <input type="time" id="novaHora" />
+          <button id="btnConfirmarReagendamento" class="btn-secondary">Confirmar Reagendamento</button>
+        </div>
+        <button id="btnConfirmarCancelamento" class="btn-secondary" style="display:none; margin-top:0.5rem;">Confirmar Cancelamento</button>
+      </div>
+    </section>
+
+    <section id="novaVendaSection" class="venda-section" style="display:none;">
+      <h2>Nova Venda</h2>
+      <label for="selectCliente">Cliente:</label>
+      <select id="selectCliente" aria-label="Selecionar cliente"></select>
+
+      <fieldset>
+        <legend>Produtos</legend>
+        <select multiple id="selectProdutos" aria-label="Selecionar produtos"></select>
+        <div id="produtosQuantidade"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Serviços</legend>
+        <select multiple id="selectServicos" aria-label="Selecionar serviços"></select>
+        <div id="servicosQuantidade"></div>
+      </fieldset>
+
+      <div class="total-venda">
+        Total: R$ <span id="totalVenda">0,00</span>
+      </div>
+
+      <button id="finalizarNovaVendaBtn" class="btn-primary">Finalizar Venda</button>
+      <button id="novaVendaBtn" class="btn-secondary">Nova Venda</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>Studio Depilação &copy; 2025</p>
+  </footer>
+</body>
+</html>
 
