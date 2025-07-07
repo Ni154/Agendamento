@@ -1,1 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatórios - Studio Depilação</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="js/relatorios.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <img src="assets/logo_clinica.png" alt="Logo" class="logo" />
+      <nav class="menu">
+        <button onclick="navegar('dashboard')">🏠 Início</button>
+        <button onclick="navegar('clientes')">🧍 Clientes</button>
+        <button onclick="navegar('agendamentos')">📅 Agendamentos</button>
+        <button onclick="navegar('produtos')">📦 Produtos</button>
+        <button onclick="navegar('servicos')">💼 Serviços</button>
+        <button onclick="navegar('vendas')">🛒 Vendas</button>
+        <button onclick="navegar('relatorios')">📊 Relatórios</button>
+        <button onclick="logout()">🚪 Sair</button>
+      </nav>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="conteudo">
+      <h1>📊 Relatórios de Vendas</h1>
+
+      <!-- Filtro por período -->
+      <div class="filtros">
+        <label for="dataInicio">De:</label>
+        <input type="date" id="dataInicio" />
+
+        <label for="dataFim">Até:</label>
+        <input type="date" id="dataFim" />
+
+        <button onclick="filtrarRelatorio()">Filtrar</button>
+      </div>
+
+      <!-- Gráfico -->
+      <canvas id="graficoVendas" height="100"></canvas>
+
+      <!-- Tabela de resumo -->
+      <div class="resumo-vendas">
+        <h2>Resumo do Período</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Vendas (R$)</th>
+              <th>Qtde Produtos</th>
+              <th>Qtde Serviços</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaResumo">
+            <!-- Preenchido via JS -->
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
 
