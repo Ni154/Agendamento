@@ -1,1 +1,58 @@
+<!-- agendamentos.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Studio Depilação | Agendamentos</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <img src="assets/logo_clinica.png" alt="Logo" class="logo"/>
+      <nav class="menu">
+        <button onclick="navegar('dashboard')">🏠 Início</button>
+        <button onclick="navegar('clientes')">🧍 Clientes</button>
+        <button onclick="navegar('agendamentos')">📅 Agendamentos</button>
+        <button onclick="navegar('produtos')">📦 Produtos</button>
+        <button onclick="navegar('servicos')">💼 Serviços</button>
+        <button onclick="navegar('vendas')">🛒 Vendas</button>
+        <button onclick="navegar('relatorios')">📊 Relatórios</button>
+        <button onclick="logout()">🚪 Sair</button>
+      </nav>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="conteudo">
+      <h1>📅 Novo Agendamento</h1>
+      <form id="formAgendamento" onsubmit="cadastrarAgendamento(event)">
+        <div class="form-grid">
+          <input type="text" name="nome_cliente" placeholder="Nome do Cliente" required />
+          <input type="date" name="data" required />
+          <input type="time" name="hora" required />
+          <input type="text" name="servicos" placeholder="Serviços (separados por vírgula)" required />
+          <select name="status">
+            <option value="Pendente">Pendente</option>
+            <option value="Confirmado">Confirmado</option>
+            <option value="Finalizado">Finalizado</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+        <button type="submit">💾 Agendar</button>
+      </form>
+
+      <h2>📋 Lista de Agendamentos</h2>
+      <div id="lista-agendamentos" class="lista-container">
+        <!-- Conteúdo via JS -->
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/agendamentos.js"></script>
+</body>
+</html>
 
