@@ -3,39 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login - NS Lanches</title>
+  <title>Login - Priscila Santos Epilação</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: url('https://img.freepik.com/fotos-gratis/hamburguer-e-batatas-fritas-na-mesa_123827-20775.jpg') no-repeat center center fixed;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://img.freepik.com/fotos-gratis/fundo-de-spa-com-copos-de-vidro-e-pedras-quentes_23-2148508583.jpg') no-repeat center center fixed;
       background-size: cover;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
+
     .login-box {
       background: rgba(255, 255, 255, 0.95);
-      padding: 30px;
+      padding: 30px 40px;
       border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
       text-align: center;
-      width: 300px;
+      max-width: 360px;
+      width: 100%;
     }
-    h2 {
+
+    .logo {
+      width: 180px;
       margin-bottom: 20px;
-      color: #e67e22;
     }
+
+    h2 {
+      color: #a67c52;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+
     input {
       width: 100%;
       padding: 10px;
       margin: 10px 0;
       border-radius: 6px;
       border: 1px solid #ccc;
+      font-size: 15px;
     }
+
     button {
-      background-color: #e67e22;
+      background-color: #a67c52;
       color: white;
       padding: 10px;
       width: 100%;
@@ -44,9 +57,11 @@
       font-size: 16px;
       cursor: pointer;
     }
+
     button:hover {
-      background-color: #d35400;
+      background-color: #8c6541;
     }
+
     #msg {
       margin-top: 10px;
       font-weight: bold;
@@ -55,7 +70,8 @@
 </head>
 <body>
   <div class="login-box">
-    <h2>NS Lanches</h2>
+    <img src="logo.png" alt="Logo Priscila Santos" class="logo" />
+    <h2>Área Administrativa</h2>
     <form id="login-form">
       <input type="text" id="usuario" placeholder="Usuário" required />
       <input type="password" id="senha" placeholder="Senha" required />
@@ -67,19 +83,11 @@
   <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-  <!-- Código JS do login -->
+  <!-- Script de Login -->
   <script>
     const SUPABASE_URL = "https://stqbqsrznhhtbvjeugyb.supabase.co";
     const SUPABASE_KEY = "sb_publishable_XmW5t1y3YcJWzCYlvRtLDA_LcJSs4gH";
-
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // Teste de conexão (opcional, para debug)
-    supabase
-      .from("usuarios")
-      .select("*")
-      .then((res) => console.log("Teste de conexão:", res))
-      .catch((err) => console.error("Erro de conexão:", err));
 
     const form = document.getElementById("login-form");
     const msg = document.getElementById("msg");
@@ -103,13 +111,13 @@
           return;
         }
 
-        // Login bem-sucedido
+        // Sucesso
         localStorage.setItem("usuario_logado", JSON.stringify(data));
-        window.location.href = "dashboard.html";
+        window.location.href = "dashboard.html"; // Redireciona
       } catch (err) {
-        console.error(err);
         msg.textContent = "Erro ao tentar login.";
         msg.style.color = "red";
+        console.error(err);
       }
     });
   </script>
