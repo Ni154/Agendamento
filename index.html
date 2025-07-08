@@ -1,26 +1,117 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login - Studio Depilação</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - NS Lanches</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('https://img.freepik.com/fotos-gratis/hamburguer-e-batatas-fritas-na-mesa_123827-20775.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .login-box {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      text-align: center;
+      width: 300px;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #e67e22;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #e67e22;
+      color: white;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #d35400;
+    }
+    #msg {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <div class="login-container">
-    <img src="assets/logo_clinica.png" alt="Logo Clínica" class="logo" />
-    <h1>Login Administrativo</h1>
-
+  <div class="login-box">
+    <h2>NS Lanches</h2>
     <form id="login-form">
       <input type="text" id="usuario" placeholder="Usuário" required />
       <input type="password" id="senha" placeholder="Senha" required />
       <button type="submit">Entrar</button>
+      <div id="msg"></div>
     </form>
-
-    <div id="msg"></div>
   </div>
 
+  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="js/login.js"></script>
+
+  <!-- Código JS do login -->
+  <script>
+    const SUPABASE_URL = "https://stqbqsrznhhtbvjeugyb.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_XmW5t1y3YcJWzCYlvRtLDA_LcJSs4gH";
+
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Teste de conexão (opcional, para debug)
+    supabase
+      .from("usuarios")
+      .select("*")
+      .then((res) => console.log("Teste de conexão:", res))
+      .catch((err) => console.error("Erro de conexão:", err));
+
+    const form = document.getElementById("login-form");
+    const msg = document.getElementById("msg");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const usuario = document.getElementById("usuario").value.trim();
+      const senha = document.getElementById("senha").value.trim();
+
+      try {
+        const { data, error } = await supabase
+          .from("usuarios")
+          .select("*")
+          .eq("usuario", usuario)
+          .eq("senha", senha)
+          .single();
+
+        if (error || !data) {
+          msg.textContent = "Usuário ou senha inválidos!";
+          msg.style.color = "red";
+          return;
+        }
+
+        // Login bem-sucedido
+        localStorage.setItem("usuario_logado", JSON.stringify(data));
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        console.error(err);
+        msg.textContent = "Erro ao tentar login.";
+        msg.style.color = "red";
+      }
+    });
+  </script>
 </body>
 </html>
