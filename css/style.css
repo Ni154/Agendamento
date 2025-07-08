@@ -1,104 +1,62 @@
-/* Reset básico */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #3a3a3a;
-}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Priscila Santos Epilação</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="login-container">
+    <img src="logo.png" alt="Logo Priscila Santos" class="logo" />
+    <h1>Área Administrativa</h1>
+    <form id="login-form">
+      <input type="text" id="usuario" placeholder="Usuário" required />
+      <input type="password" id="senha" placeholder="Senha" required />
+      <button type="submit">Entrar</button>
+      <div id="msg"></div>
+    </form>
+  </div>
 
-body, html {
-  height: 100%;
-  background: linear-gradient(135deg, #e8f0f8, #f9fafb);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem;
-}
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const SUPABASE_URL = "https://stqbqsrznhhtbvjeugyb.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_XmW5t1y3YcJWzCYlvRtLDA_LcJSs4gH";
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-.login-container {
-  background: white;
-  max-width: 400px;
-  width: 100%;
-  padding: 2.5rem 2rem;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(50, 50, 93, 0.1);
-  text-align: center;
-}
+    const form = document.getElementById("login-form");
+    const msg = document.getElementById("msg");
 
-.logo {
-  max-width: 180px;
-  margin-bottom: 1.5rem;
-  filter: drop-shadow(0 0 5px rgba(0,0,0,0.1));
-}
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const usuario = document.getElementById("usuario").value.trim();
+      const senha = document.getElementById("senha").value.trim();
 
-h1 {
-  font-weight: 600;
-  color: #2e4057;
-  margin-bottom: 2rem;
-  font-size: 1.8rem;
-}
+      try {
+        const { data, error } = await supabase
+          .from("usuarios")
+          .select("*")
+          .eq("usuario", usuario)
+          .eq("senha", senha)
+          .single();
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
+        if (error || !data) {
+          msg.textContent = "Usuário ou senha inválidos!";
+          msg.style.color = "red";
+          return;
+        }
 
-label {
-  font-weight: 600;
-  text-align: left;
-  font-size: 0.9rem;
-  color: #53687e;
-}
-
-input[type="email"],
-input[type="password"] {
-  padding: 0.9rem 1rem;
-  font-size: 1rem;
-  border: 1.8px solid #cbd5e1;
-  border-radius: 8px;
-  transition: border-color 0.3s ease;
-}
-
-input[type="email"]:focus,
-input[type="password"]:focus {
-  outline: none;
-  border-color: #5a8dee;
-  box-shadow: 0 0 8px rgba(90, 141, 238, 0.3);
-}
-
-button {
-  background-color: #5a8dee;
-  color: white;
-  font-weight: 700;
-  border: none;
-  padding: 0.95rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1.1rem;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #4174e2;
-}
-
-#msg {
-  margin-top: 1.2rem;
-  font-weight: 600;
-  color: #1e7e34;
-  min-height: 1.4em;
-}
-
-/* Responsividade */
-
-@media (max-width: 480px) {
-  .login-container {
-    padding: 2rem 1.5rem;
-  }
-
-  h1 {
-    font-size: 1.5rem;
-  }
-}
+        // Sucesso
+        msg.textContent = "Login realizado com sucesso!";
+        msg.style.color = "green";
+        localStorage.setItem("usuario_logado", JSON.stringify(data));
+        setTimeout(() => window.location.href = "dashboard.html", 1000);
+      } catch (err) {
+        msg.textContent = "Erro ao tentar login.";
+        msg.style.color = "red";
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>
