@@ -1,35 +1,51 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-  const SUPABASE_URL = "https://stqbqsrznhhtbvjeugyb.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_XmW5t1y3YcJWzCYlvRtLDA_LcJSs4gH";
+// login.js
 
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Substitua com sua URL e chave pública do Supabase
+const SUPABASE_URL = "https://stqbqsrznhhtbvjeugyb.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XmW5t1y3YcJWzCYlvRtLDA_LcJSs4gH";
 
-  document.getElementById("login-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const usuario = document.getElementById("usuario").value.trim();
-    const senha = document.getElementById("senha").value.trim();
-    const msg = document.getElementById("msg");
+// Cria o cliente
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    try {
-      const { data, error } = await supabase
-        .from("usuarios")
-        .select("*")
-        .eq("usuario", usuario)
-        .eq("senha", senha)
-        .single();
+// Captura o formulário
+const form = document.getElementById("login-form");
+const msg = document.getElementById("msg");
 
-      if (error || !data) {
-        msg.textContent = "Usuário ou senha inválidos!";
-        msg.style.color = "red";
-        return;
-      }
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-      localStorage.setItem("usuario_logado", JSON.stringify(data));
-      window.location.href = "dashboard.html";
-    } catch (err) {
-      msg.textContent = "Erro ao tentar login.";
+  // Captura os valores
+  const usuario = document.getElementById("usuario").value.trim();
+  const senha = document.getElementById("senha").value.trim();
+
+  // Verifica se campos foram preenchidos
+  if (!usuario || !senha) {
+    msg.textContent = "Preencha todos os campos!";
+    msg.style.color = "red";
+    return;
+  }
+
+  try {
+    // Consulta a tabela 'usuarios'
+    const { data, error } = await supabase
+      .from("usuarios")
+      .select("*")
+      .eq("usuario", usuario)
+      .eq("senha", senha)
+      .single();
+
+    if (error || !data) {
+      msg.textContent = "Usuário ou senha incorretos!";
       msg.style.color = "red";
+      return;
     }
-  });
-</script>
+
+    // Login bem-sucedido
+    localStorage.setItem("usuario_logado", JSON.stringify(data));
+    window.location.href = "dashboard.html"; // Redireciona
+  } catch (err) {
+    msg.textContent = "Erro ao conectar. Tente novamente.";
+    msg.style.color = "red";
+    console.error("Erro de login:", err);
+  }
+});
