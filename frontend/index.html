@@ -1,28 +1,46 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Login - Agendamento</title>
-    <link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - Agendamento</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-    <div class="login-container">
-        <img src="assets/logo.png" alt="Logo" class="logo" />
-        <h1>Entrar no Sistema</h1>
-        <form id="login-form">
-            <label for="email">Email</label>
-            <input type="email" id="email" placeholder="seu@email.com" required />
+  <main class="login-wrapper">
+    <section class="login-box">
+      <img src="assets/logo.png" alt="Logo" class="login-logo" />
+      <h1 class="login-title">Entrar</h1>
+      <form id="login-form" autocomplete="off" novalidate>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="email@exemplo.com"
+            required
+            autocomplete="username"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="********"
+            required
+            autocomplete="current-password"
+            minlength="6"
+          />
+        </div>
+        <button type="submit" class="btn-primary">Entrar</button>
+      </form>
+      <p id="error-message" class="error-message" aria-live="polite"></p>
+    </section>
+  </main>
 
-            <label for="password">Senha</label>
-            <input type="password" id="password" placeholder="********" required />
-
-            <button type="submit">Entrar</button>
-        </form>
-        <p id="msg-error" class="error-msg"></p>
-    </div>
-
-    <script src="js/auth.js"></script>
+  <script src="js/auth.js"></script>
 </body>
 </html>
-
