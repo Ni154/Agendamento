@@ -1,1 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro de Cliente</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>📋 Cadastro de Cliente com Avaliação</h2>
 
+    <form id="cliente-form">
+      <h3>Dados Pessoais</h3>
+      <input type="text" name="nome" placeholder="Nome completo" required>
+      <input type="tel" name="telefone" placeholder="Telefone" required>
+      <input type="date" name="nascimento" required>
+
+      <h3>Preferências</h3>
+      <input type="text" name="bebida" placeholder="Bebida preferida">
+      <input type="text" name="musica" placeholder="Música preferida">
+
+      <h3>Ficha de Avaliação</h3>
+
+      <label>Está gestante?</label>
+      <select name="gestante"><option>Sim</option><option>Não</option></select>
+
+      <label>Possui alergia a cosméticos?</label>
+      <select name="alergia"><option>Sim</option><option>Não</option></select>
+
+      <label>Utiliza medicamentos contínuos?</label>
+      <select name="medicamento"><option>Sim</option><option>Não</option></select>
+
+      <label>Realizou peeling ou procedimentos estéticos nos últimos 15 dias?</label>
+      <select name="procedimentos"><option>Sim</option><option>Não</option></select>
+
+      <label>Possui alguma doença de pele?</label>
+      <select name="doenca_pele"><option>Sim</option><option>Não</option></select>
+
+      <label>Observações adicionais:</label>
+      <textarea name="observacoes" rows="4" placeholder="Escreva aqui..."></textarea>
+
+      <h3>Assinatura Digital</h3>
+      <canvas id="assinatura" width="300" height="150" style="border:1px solid #ccc;"></canvas><br>
+      <button type="button" id="limpar">🧽 Limpar Assinatura</button>
+
+      <br><br>
+      <button type="submit">Salvar Cadastro</button>
+    </form>
+
+    <div id="msg"></div>
+  </div>
+
+  <script src="js/cliente.js"></script>
+</body>
+</html>
