@@ -94,12 +94,20 @@
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      msg.textContent = "";  // limpa mensagem anterior
+
       const usuario = document.getElementById("usuario").value.trim();
       const senha = document.getElementById("senha").value.trim();
 
+      if (!usuario || !senha) {
+        msg.textContent = "Preencha usuário e senha.";
+        msg.style.color = "red";
+        return;
+      }
+
       try {
         const { data, error } = await supabase
-          .from("usuarios")
+          .from("usuarios")  // tabela SEM acento
           .select("*")
           .eq("usuario", usuario)
           .eq("senha", senha)
@@ -111,9 +119,9 @@
           return;
         }
 
-        // Sucesso
+        // Login bem sucedido
         localStorage.setItem("usuario_logado", JSON.stringify(data));
-        window.location.href = "dashboard.html"; // Redireciona
+        window.location.href = "dashboard.html"; // redireciona para painel
       } catch (err) {
         msg.textContent = "Erro ao tentar login.";
         msg.style.color = "red";
