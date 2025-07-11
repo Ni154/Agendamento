@@ -1,35 +1,37 @@
-// Inicializa o Supabase (substitua as chaves abaixo pelas suas)
-const SUPABASE_URL = "https://SEU-PROJETO.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_XmW5t1y3YcJWzCYlvRtLDA_LcJSs4gH";
+// Import Supabase client
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Sua URL pública do projeto Supabase — substitua pelo seu endpoint real
+const SUPABASE_URL = 'https://xyzcompany.supabase.co'  // <== troque pela sua URL real!
+const SUPABASE_KEY = 'sb_publishable_XmW5t1y3YcJWzCYlvRtLDA_LcJSs4gH'
 
-const form = document.getElementById("login-form");
-const errorMsg = document.getElementById("login-error");
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    errorMsg.textContent = "";
+// Seleciona o formulário e a mensagem de erro
+const form = document.getElementById('login-form')
+const errorMessage = document.getElementById('error-message')
 
-    const email = form.email.value.trim();
-    const password = form.password.value;
+form.addEventListener('submit', async (e) => {
+  e.preventDefault()
+  errorMessage.textContent = '' // limpa mensagem anterior
 
-    if (!email || !password) {
-        errorMsg.textContent = "Preencha todos os campos.";
-        return;
-    }
+  const email = form.email.value.trim()
+  const password = form.password.value.trim()
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-    });
+  if (!email || !password) {
+    errorMessage.textContent = 'Por favor, preencha todos os campos.'
+    return
+  }
 
-    if (error) {
-        errorMsg.textContent = "Erro no login: " + error.message;
-        return;
-    }
+  // Chamada para autenticação
+  const { error, data } = await supabase.auth.signInWithPassword({ email, password })
 
-    // Login sucesso - redirecionar para dashboard
-    window.location.href = "dashboard.html";
-});
+  if (error) {
+    errorMessage.textContent = 'Erro no login: ' + error.message
+    return
+  }
 
+  // Login bem sucedido
+  // Você pode redirecionar para dashboard ou armazenar sessão local
+  window.location.href = 'dashboard.html'
+})
