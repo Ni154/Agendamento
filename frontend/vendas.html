@@ -1,1 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vendas - Priscila Santos Epilação</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fefcf9;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    h2 {
+      color: #a67c52;
+      text-align: center;
+    }
+    select, input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+    button {
+      background-color: #a67c52;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #8c6541;
+    }
+    .section {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+    .venda-item {
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Painel de Vendas</h2>
+
+    <div class="section">
+      <label><input type="radio" name="modo" value="agendamento" checked> Venda por Agendamento</label>
+      <label><input type="radio" name="modo" value="direta"> Nova Venda Direta</label>
+    </div>
+
+    <div id="venda-agendamento" class="section">
+      <h3>Selecionar Agendamento</h3>
+      <select id="select-agendamento"></select>
+      <div id="dados-agendamento"></div>
+      <input type="text" id="produto-extra" placeholder="Serviço adicional (opcional)">
+      <input type="number" id="qtd-extra" placeholder="Quantidade" min="1">
+      <select id="forma-pagamento">
+        <option>PIX</option>
+        <option>Cartão</option>
+        <option>Dinheiro</option>
+      </select>
+      <button onclick="registrarVendaAgendada()">Finalizar Venda</button>
+    </div>
+
+    <div id="venda-direta" class="section" style="display: none;">
+      <h3>Nova Venda</h3>
+      <select id="select-cliente"></select>
+      <select id="select-produto"></select>
+      <input type="number" id="quantidade-direta" placeholder="Quantidade" min="1">
+      <select id="pagamento-direto">
+        <option>PIX</option>
+        <option>Cartão</option>
+        <option>Dinheiro</option>
+      </select>
+      <button onclick="registrarVendaDireta()">Finalizar Venda</button>
+    </div>
+
+    <div class="section">
+      <h3>Histórico de Vendas do Dia</h3>
+      <div id="lista-vendas"></div>
+    </div>
+  </div>
+
+  <script>
+    const supabase = supabase.createClient(
+      "https://stqbqsrznhhtbvjeugyb.supabase.co",
+      "sb_publishable_XmW5t1y3YcJWzCYlvRtLDA_LcJSs4gH"
+    );
+
+    document.querySelectorAll("input[name='modo']").forEach(radio => {
+      radio.addEventListener("change", (e) => {
+        const modo = e.target.value;
+        document.getElementById("venda-agendamento").style.display = modo === 'agendamento' ? 'block' : 'none';
+        document.getElementById("venda-direta").style.display = modo === 'direta' ? 'block' : 'none';
+      });
+    });
+
+    async function carregarDados() {
+      const agendamentos = await supabase.from("agendamentos").select("*, clientes(nome)").eq("status", "Agendado")
+      const clientes = await supabase.from("clientes").select("id, nome")
+      const produtos = await supabase.from("produtos").select("id, nome")
+
+      const agSel = document.getElementById("select-agendamento")
+      agendamentos.data.forEach(a => {
+        agSel.innerHTML += `<option value="${a.id}">${a.clientes.nome} - ${a.servico}</option>`
+      })
+
+      const cSel = document.getElementById("select-cliente")
+      clientes.data.forEach(c => {
+        cSel.innerHTML += `<option value="${c.id}">${c.nome}</option>`
+      })
+
+      const pSel = document.getElementById("select-produto")
+      produtos.data.forEach(p => {
+        pSel.innerHTML += `<option value="${p.id}">${p.nome}</option>`
+      })
+
+      carregarVendasHoje();
+    }
+
+    async function registrarVendaAgendada() {
+      const agId = document.getElementById("select-agendamento").value
+      const forma = document.getElementById("forma-pagamento").value
+
+      const extra = document.getElementById("produto-extra").value
+      const qtd = document.getElementById("qtd-extra").value || 1
+
+      let total = 50; // Simulando valor fixo ou puxar do agendamento
+      if (extra) total += 30 * parseInt(qtd)
+
+      await supabase.from("vendas").insert({
+        cliente_id: agId,
+        forma_pagamento: forma,
+        total,
+        data: new Date().toISOString(),
+        agendamento_id: agId
+      })
+      await supabase.from("agendamentos").update({ status: "Finalizado" }).eq("id", agId)
+      alert("Venda finalizada com sucesso")
+      location.reload()
+    }
+
+    async function registrarVendaDireta() {
+      const cliente = document.getElementById("select-cliente").value
+      const produto = document.getElementById("select-produto").value
+      const qtd = parseInt(document.getElementById("quantidade-direta").value || 1)
+      const forma = document.getElementById("pagamento-direto").value
+
+      let preco = 30;
+      let total = qtd * preco
+
+      await supabase.from("vendas").insert({
+        cliente_id: cliente,
+        produto_id: produto,
+        quantidade: qtd,
+        forma_pagamento: forma,
+        total,
+        data: new Date().toISOString()
+      })
+      alert("Venda registrada com sucesso")
+      location.reload()
+    }
+
+    async function carregarVendasHoje() {
+      const hoje = new Date().toISOString().split("T")[0]
+      const { data, error } = await supabase.from("vendas").select("*, clientes(nome)")
+      const vendas = data.filter(v => v.data.startsWith(hoje))
+
+      const lista = document.getElementById("lista-vendas")
+      vendas.forEach(v => {
+        const div = document.createElement("div")
+        div.className = "venda-item"
+        div.innerHTML = `
+          <strong>${v.clientes?.nome || 'Cliente'}</strong><br>
+          Total: R$ ${v.total} - ${v.forma_pagamento}<br>
+          <button onclick="cancelarVenda(${v.id})">Cancelar Venda</button>
+        `
+        lista.appendChild(div)
+      })
+    }
+
+    async function cancelarVenda(id) {
+      if (confirm("Deseja realmente cancelar esta venda?")) {
+        await supabase.from("vendas").delete().eq("id", id)
+        alert("Venda cancelada!")
+        location.reload()
+      }
+    }
+
+    carregarDados()
+  </script>
+</body>
+</html>
 
