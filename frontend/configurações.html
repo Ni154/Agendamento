@@ -1,1 +1,157 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Configurações - Priscila Santos Epilação</title>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fdfdfd;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      padding: 30px 40px;
+    }
+
+    h2 {
+      color: #a67c52;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    input[type="text"], input[type="file"], select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 25px;
+      background-color: #a67c52;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #8c6541;
+    }
+
+    .logo-preview {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .logo-preview img {
+      max-width: 180px;
+      border-radius: 8px;
+    }
+
+    .msg {
+      text-align: center;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Configurações do Sistema</h2>
+
+    <label for="nomeEmpresa">Nome da Empresa</label>
+    <input type="text" id="nomeEmpresa" placeholder="Ex: Priscila Santos Epilação" />
+
+    <label for="corTema">Cor do Tema</label>
+    <select id="corTema">
+      <option value="#a67c52">Padrão (Dourado)</option>
+      <option value="#6d9e78">Verde Suave</option>
+      <option value="#7f8fa6">Azul Elegante</option>
+      <option value="#ff6b6b">Rosa Vibrante</option>
+    </select>
+
+    <label for="logoInput">Logo da Empresa</label>
+    <input type="file" id="logoInput" accept="image/*" />
+
+    <div class="logo-preview" id="previewLogo"></div>
+
+    <button onclick="salvarConfiguracoes()">Salvar Configurações</button>
+
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <script>
+    const nomeEmpresaInput = document.getElementById("nomeEmpresa");
+    const corTemaSelect = document.getElementById("corTema");
+    const logoInput = document.getElementById("logoInput");
+    const previewLogo = document.getElementById("previewLogo");
+    const msg = document.getElementById("msg");
+
+    // Carrega configurações anteriores se existirem
+    window.onload = () => {
+      const config = JSON.parse(localStorage.getItem("config_sistema"));
+      if (config) {
+        nomeEmpresaInput.value = config.nome || "";
+        corTemaSelect.value = config.cor || "#a67c52";
+
+        if (config.logo) {
+          previewLogo.innerHTML = `<img src="${config.logo}" alt="Logo">`;
+        }
+      }
+    };
+
+    logoInput.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewLogo.innerHTML = `<img src="${e.target.result}" alt="Logo">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function salvarConfiguracoes() {
+      const nome = nomeEmpresaInput.value.trim();
+      const cor = corTemaSelect.value;
+      const logoImg = document.querySelector("#previewLogo img");
+      const logoData = logoImg ? logoImg.src : null;
+
+      const config = {
+        nome: nome,
+        cor: cor,
+        logo: logoData
+      };
+
+      localStorage.setItem("config_sistema", JSON.stringify(config));
+      msg.textContent = "Configurações salvas com sucesso!";
+      msg.style.color = "#2e7d32";
+    }
+  </script>
+
+</body>
+</html>
