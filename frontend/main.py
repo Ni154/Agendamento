@@ -1,24 +1,26 @@
 import streamlit as st
 import requests
+from datetime import date
 
-API_URL = "http://localhost:8000"  # Ajuste para o URL real da sua API backend
+API_URL = "http://localhost:8000"  # Ajuste seu endpoint backend
 
-# Inicializa estado de login
+# --- SESSION STATE ---
 if "login" not in st.session_state:
     st.session_state.login = False
 if "token" not in st.session_state:
     st.session_state.token = None
 if "menu" not in st.session_state:
     st.session_state.menu = None
+if "usuario" not in st.session_state:
+    st.session_state.usuario = None
 
+# --- FUNÇÕES API ---
 def login_api(usuario, senha):
-    # Exemplo simples de login (ajuste conforme sua API)
     try:
-        response = requests.post(f"{API_URL}/auth/login", json={"usuario": usuario, "senha": senha})
-        if response.status_code == 200:
-            return response.json().get("access_token")
-        else:
-            return None
+        resp = requests.post(f"{API_URL}/auth/login", json={"usuario": usuario, "senha": senha})
+        if resp.status_code == 200:
+            return resp.json().get("access_token")
+        return None
     except Exception:
         return None
 
@@ -26,7 +28,9 @@ def logout():
     st.session_state.login = False
     st.session_state.token = None
     st.session_state.menu = None
+    st.session_state.usuario = None
 
+# --- MENU ---
 def menu_options():
     return [
         "Início", "Dashboard", "Cadastro Cliente", "Cadastro Empresa",
@@ -52,50 +56,103 @@ def render_menu():
     }
     with st.sidebar:
         st.title("Menu")
+        st.write(f"Usuário: {st.session_state.usuario}")
         for opcao in menu_options():
             icone = icones_menu.get(opcao, "📌")
             if st.button(f"{icone} {opcao}"):
                 if opcao == "Sair":
                     logout()
+                    st.experimental_rerun()
                 else:
                     st.session_state.menu = opcao
+                    st.experimental_rerun()
 
+# --- TELA LOGIN ---
+def tela_login():
+    st.title("🔐 Login")
+    usuario_input = st.text_input("Usuário")
+    senha_input = st.text_input("Senha", type="password")
+    if st.button("Entrar"):
+        token = login_api(usuario_input, senha_input)
+        if token:
+            st.session_state.login = True
+            st.session_state.token = token
+            st.session_state.usuario = usuario_input
+            st.experimental_rerun()
+        else:
+            st.error("Usuário ou senha inválidos")
+
+# --- TELA INÍCIO ---
+def tela_inicio():
+    st.subheader("👋 Seja bem-vindo(a)!")
+    st.write("Use o menu lateral para navegar pelas funcionalidades.")
+
+# --- TELA DASHBOARD ---
+def tela_dashboard():
+    st.subheader("📊 Dashboard")
+    try:
+        headers = {"Authorization": f"Bearer {st.session_state.token}"}
+        resp = requests.get(f"{API_URL}/dashboard", headers=headers)
+        if resp.status_code == 200:
+            data = resp.json()
+            st.metric("Clientes", data.get("total_clientes", 0))
+            st.metric("Vendas", data.get("total_vendas", 0))
+            st.metric("Produtos", data.get("total_produtos", 0))
+            st.metric("Serviços", data.get("total_servicos", 0))
+            st.metric("Faturamento", f'R$ {data.get("total_faturamento", 0):.2f}')
+            st.metric("Despesas", f'R$ {data.get("total_despesas", 0):.2f}')
+            st.metric("Lucro Líquido", f'R$ {data.get("lucro_liquido", 0):.2f}')
+        else:
+            st.error("Erro ao carregar dashboard")
+    except Exception as e:
+        st.error(f"Erro: {e}")
+
+# --- ROTEAMENTO DE TELAS ---
 def main():
     st.set_page_config(page_title="Studio Depilação", layout="wide")
-
     if not st.session_state.login:
-        st.title("🔐 Login")
-        usuario_input = st.text_input("Usuário")
-        senha_input = st.text_input("Senha", type="password")
-        if st.button("Entrar"):
-            token = login_api(usuario_input, senha_input)
-            if token:
-                st.session_state.login = True
-                st.session_state.token = token
-                st.experimental_rerun()
-            else:
-                st.error("Usuário ou senha inválidos")
+        tela_login()
     else:
         render_menu()
-
         menu = st.session_state.menu or "Início"
         st.title(f"🧭 {menu}")
 
-        # Exemplo de renderização por menu
         if menu == "Início":
-            st.subheader("👋 Seja bem-vindo(a)!")
-            # Aqui você pode colocar a tela inicial (ex: resumo, agendamentos do dia etc.)
-
+            tela_inicio()
         elif menu == "Dashboard":
-            st.subheader("📊 Dashboard")
-            # Chamadas API e exibição dados do dashboard
-
+            tela_dashboard()
         elif menu == "Cadastro Cliente":
             st.subheader("🧍 Cadastro Cliente")
-            # Importar componente frontend para cadastro cliente
-
-        # TODO: Adicione os demais menus conforme necessidade, importando seus componentes ou funções
+            st.info("Aqui irá o componente de cadastro cliente")
+        elif menu == "Cadastro Empresa":
+            st.subheader("🏢 Cadastro Empresa")
+            st.info("Aqui irá o componente de cadastro empresa")
+        elif menu == "Cadastro Produtos":
+            st.subheader("📦 Cadastro Produtos")
+            st.info("Aqui irá o componente de cadastro produtos")
+        elif menu == "Cadastro Serviços":
+            st.subheader("💆 Cadastro Serviços")
+            st.info("Aqui irá o componente de cadastro serviços")
+        elif menu == "Agendamento":
+            st.subheader("📅 Agendamento")
+            st.info("Aqui irá o componente de agendamento")
+        elif menu == "Vendas":
+            st.subheader("💰 Vendas")
+            st.info("Aqui irá o componente de vendas")
+        elif menu == "Cancelar Vendas":
+            st.subheader("🚫 Cancelar Vendas")
+            st.info("Aqui irá o componente para cancelar vendas")
+        elif menu == "Despesas":
+            st.subheader("💸 Despesas")
+            st.info("Aqui irá o componente de despesas")
+        elif menu == "Relatórios":
+            st.subheader("📈 Relatórios")
+            st.info("Aqui irá o componente de relatórios")
+        elif menu == "Backup":
+            st.subheader("💾 Backup")
+            st.info("Aqui irá o componente de backup")
+        else:
+            st.write("Menu não implementado ainda")
 
 if __name__ == "__main__":
     main()
-
