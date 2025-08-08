@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from datetime import date
 
-API_URL = "http://localhost:8000"  # Ajuste seu endpoint backend
+API_URL = "https://agendamento-studio.up.railway.app"  # Ajuste seu endpoint backend
 
 # --- SESSION STATE ---
 if "login" not in st.session_state:
