@@ -1,11 +1,11 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
 
 class ClienteBase(BaseModel):
     nome: str
     telefone: Optional[str] = None
-    nascimento: Optional[str] = None  # ISO format "YYYY-MM-DD"
-    hora_agendada: Optional[str] = None  # "HH:MM"
+    nascimento: Optional[str] = None
+    hora_agendada: Optional[str] = None
     instagram: Optional[str] = None
     cantor: Optional[str] = None
     bebida: Optional[str] = None
@@ -28,43 +28,16 @@ class ClienteBase(BaseModel):
     problema_extra: Optional[str] = None
     qual_problema: Optional[str] = None
     autorizacao_imagem: Optional[str] = None
-    assinatura: Optional[bytes] = None
 
 class ClienteCreate(ClienteBase):
-    pass
+    assinatura: Optional[bytes] = None
 
-class ClienteUpdate(BaseModel):
-    nome: Optional[str]
-    telefone: Optional[str]
-    nascimento: Optional[str]
-    hora_agendada: Optional[str]
-    instagram: Optional[str]
-    cantor: Optional[str]
-    bebida: Optional[str]
-    epilacao: Optional[str]
-    alergia: Optional[str]
-    qual_alergia: Optional[str]
-    problemas_pele: Optional[str]
-    tratamento: Optional[str]
-    tipo_pele: Optional[str]
-    hidrata: Optional[str]
-    gravida: Optional[str]
-    medicamento: Optional[str]
-    qual_medicamento: Optional[str]
-    uso: Optional[str]
-    diabete: Optional[str]
-    pelos_encravados: Optional[str]
-    cirurgia: Optional[str]
-    foliculite: Optional[str]
-    qual_foliculite: Optional[str]
-    problema_extra: Optional[str]
-    qual_problema: Optional[str]
-    autorizacao_imagem: Optional[str]
-    assinatura: Optional[bytes]
+class ClienteUpdate(ClienteBase):
+    assinatura: Optional[bytes] = None
 
-class ClienteRead(ClienteBase):
+class ClienteOut(ClienteBase):
     id: int
+    assinatura: Optional[bytes] = None
 
     class Config:
         orm_mode = True
-
