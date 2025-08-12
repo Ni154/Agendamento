@@ -1,8 +1,55 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.config.database import engine, Base
+from dotenv import load_dotenv
+import os
 
-# Import das rotas criadas
+# --- Carregar variáveis de ambiente ---
+load_dotenv()
+
+print("\n🔹 Conectando ao banco de dados:")
+print(f"Host: {os.getenv('POSTGRES_HOST')}")
+print(f"Banco: {os.getenv('POSTGRES_DB')}")
+print(f"Usuário: {os.getenv('POSTGRES_USER')}\n")
+
+# --- Importar todos os models para registrar no metadata ---
+from backend.models import (
+    cliente_model,
+    produto_model,
+    servico_model,
+    agendamento_model,
+    venda_model,
+    despesa_model
+)
+
+# --- Criar tabelas ---
+Base.metadata.create_all(bind=engine)
+print("✅ Tabelas criadas/verificadas com sucesso!\n")
+
+# --- Inicializar FastAPI ---
+app = FastAPI(title="Studio Depilação API")
+
+# --- Configuração CORS ---
+origins = [
+    "https://agendamento-banco-de-dados.up.railway.app",  # backend
+    "https://<seu-nome-no-streamlit>.streamlit.app",       # frontend
+]
+
+if os.getenv("ENV", "dev") == "dev":
+    origins.extend([
+        "http://localhost:8501",
+        "http://127.0.0.1:8501"
+    ])
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# --- Importar rotas ---
 from backend.routes.usuario_routes import router as usuario_router
 from backend.routes.cliente_routes import router as cliente_router
 from backend.routes.produto_routes import router as produto_router
@@ -14,38 +61,7 @@ from backend.routes.backup_routes import router as backup_router
 from backend.routes.dashboard_routes import router as dashboard_router
 from backend.routes.relatorio_routes import router as relatorio_router
 
-from dotenv import load_dotenv
-import os
-
-# Carregar variáveis ambiente
-load_dotenv()
-
-app = FastAPI(title="Studio Depilação API")
-
-# --- Configuração CORS ---
-# Defina os domínios permitidos (Railway e seu app Streamlit)
-origins = [
-    "https://agendamento-banco-de-dados.up.railway.app",  # backend
-    "https://<seu-nome-no-streamlit>.streamlit.app",       # frontend Streamlit
-]
-
-# Em desenvolvimento local, permitir localhost
-if os.getenv("ENV", "dev") == "dev":
-    origins.append("http://localhost:8501")
-    origins.append("http://127.0.0.1:8501")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,        # apenas esses domínios
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Criar todas as tabelas no banco
-Base.metadata.create_all(bind=engine)
-
-# --- Rotas ---
+# --- Adicionar rotas ---
 app.include_router(usuario_router, prefix="/usuario", tags=["Usuário"])
 app.include_router(cliente_router, prefix="/cliente", tags=["Cliente"])
 app.include_router(produto_router, prefix="/produto", tags=["Produto"])
