@@ -22,21 +22,30 @@ load_dotenv()
 
 app = FastAPI(title="Studio Depilação API")
 
-# Configuração CORS - ajuste os origins para o domínio do frontend em produção
-origins = ["*"]
+# --- Configuração CORS ---
+# Defina os domínios permitidos (Railway e seu app Streamlit)
+origins = [
+    "https://agendamento-banco-de-dados.up.railway.app",  # backend
+    "https://<seu-nome-no-streamlit>.streamlit.app",       # frontend Streamlit
+]
+
+# Em desenvolvimento local, permitir localhost
+if os.getenv("ENV", "dev") == "dev":
+    origins.append("http://localhost:8501")
+    origins.append("http://127.0.0.1:8501")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=origins,        # apenas esses domínios
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Criar todas as tabelas no banco, baseadas nos modelos
+# Criar todas as tabelas no banco
 Base.metadata.create_all(bind=engine)
 
-# Incluir rotas
+# --- Rotas ---
 app.include_router(usuario_router, prefix="/usuario", tags=["Usuário"])
 app.include_router(cliente_router, prefix="/cliente", tags=["Cliente"])
 app.include_router(produto_router, prefix="/produto", tags=["Produto"])
@@ -51,4 +60,3 @@ app.include_router(relatorio_router, prefix="/relatorio", tags=["Relatório"])
 @app.get("/")
 def root():
     return {"message": "API Studio Depilação rodando"}
-
