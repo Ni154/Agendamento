@@ -1,45 +1,34 @@
-from pydantic import BaseModel, Field, validator
-from typing import Optional
-from datetime import date
+from sqlalchemy import Column, Integer, String, LargeBinary
+from config.database import Base
 
-class ClienteBase(BaseModel):
-    nome: str = Field(..., example="Maria Silva")
-    telefone: Optional[str] = None
-    nascimento: Optional[date] = None
-    hora_agendada: Optional[str] = None
-    instagram: Optional[str] = None
-    cantor: Optional[str] = None
-    bebida: Optional[str] = None
-    epilacao: Optional[str] = None  # SIM / NÃO
-    alergia: Optional[str] = None
-    qual_alergia: Optional[str] = None
-    problemas_pele: Optional[str] = None
-    tratamento: Optional[str] = None
-    tipo_pele: Optional[str] = None
-    hidrata: Optional[str] = None
-    gravida: Optional[str] = None
-    medicamento: Optional[str] = None
-    qual_medicamento: Optional[str] = None
-    uso: Optional[str] = None  # DIU, Marca-passo, Nenhum
-    diabete: Optional[str] = None
-    pelos_encravados: Optional[str] = None
-    cirurgia: Optional[str] = None
-    foliculite: Optional[str] = None
-    qual_foliculite: Optional[str] = None
-    problema_extra: Optional[str] = None
-    qual_problema: Optional[str] = None
-    autorizacao_imagem: Optional[str] = None
-    assinatura: Optional[bytes] = None  # BLOB em DB, base64 no transporte pode ser melhor
+class Cliente(Base):
+    __tablename__ = "clientes"
 
-class ClienteCreate(ClienteBase):
-    pass
-
-class ClienteUpdate(ClienteBase):
-    pass
-
-class ClienteDB(ClienteBase):
-    id: int
-
-    class Config:
-        orm_mode = True
-
+    id = Column(Integer, primary_key=True, index=True)
+    nome = Column(String, nullable=False)
+    telefone = Column(String)
+    nascimento = Column(String)
+    hora_agendada = Column(String)
+    instagram = Column(String)
+    cantor = Column(String)
+    bebida = Column(String)
+    epilacao = Column(String)
+    alergia = Column(String)
+    qual_alergia = Column(String)
+    problemas_pele = Column(String)
+    tratamento = Column(String)
+    tipo_pele = Column(String)
+    hidrata = Column(String)
+    gravida = Column(String)
+    medicamento = Column(String)
+    qual_medicamento = Column(String)
+    uso = Column(String)
+    diabete = Column(String)
+    pelos_encravados = Column(String)
+    cirurgia = Column(String)
+    foliculite = Column(String)
+    qual_foliculite = Column(String)
+    problema_extra = Column(String)
+    qual_problema = Column(String)
+    autorizacao_imagem = Column(String)
+    assinatura = Column(LargeBinary)
