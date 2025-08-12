@@ -1,27 +1,29 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from backend.config.database import engine, Base
 
-from routes import (
-    cliente_routes,
-    produto_routes,
-    servico_routes,
-    venda_routes,
-    despesa_routes,
-    agendamento_routes,
-    usuario_routes,
-    backup,
-    dashboard,
-    relatorio,
-)
+# Import das rotas criadas
+from backend.routes.usuario_routes import router as usuario_router
+from backend.routes.cliente_routes import router as cliente_router
+from backend.routes.produto_routes import router as produto_router
+from backend.routes.servico_routes import router as servico_router
+from backend.routes.venda_routes import router as venda_router
+from backend.routes.despesa_routes import router as despesa_router
+from backend.routes.agendamento_routes import router as agendamento_router
+from backend.routes.backup_routes import router as backup_router
+from backend.routes.dashboard_routes import router as dashboard_router
+from backend.routes.relatorio_routes import router as relatorio_router
 
-app = FastAPI(title="API Studio Depilação")
+from dotenv import load_dotenv
+import os
 
-# Configurar CORS para frontend acessar a API
-origins = [
-    "http://localhost",
-    "http://localhost:8501",  # padrão Streamlit local
-    # adicionar domínios permitidos aqui (ex: frontend deploy)
-]
+# Carregar variáveis ambiente
+load_dotenv()
+
+app = FastAPI(title="Studio Depilação API")
+
+# Configuração CORS - ajuste os origins para o domínio do frontend em produção
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,20 +33,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Criar todas as tabelas no banco, baseadas nos modelos
+Base.metadata.create_all(bind=engine)
+
 # Incluir rotas
-app.include_router(cliente_routes.router, prefix="/clientes", tags=["Clientes"])
-app.include_router(produto_routes.router, prefix="/produtos", tags=["Produtos"])
-app.include_router(servico_routes.router, prefix="/servicos", tags=["Serviços"])
-app.include_router(venda_routes.router, prefix="/vendas", tags=["Vendas"])
-app.include_router(despesa_routes.router, prefix="/despesas", tags=["Despesas"])
-app.include_router(agendamento_routes.router, prefix="/agendamentos", tags=["Agendamentos"])
-app.include_router(usuario_routes.router, prefix="/usuarios", tags=["Usuários"])
-app.include_router(backup.router, prefix="/backup", tags=["Backup"])
-app.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
-app.include_router(relatorio.router, prefix="/relatorios", tags=["Relatórios"])
+app.include_router(usuario_router, prefix="/usuario", tags=["Usuário"])
+app.include_router(cliente_router, prefix="/cliente", tags=["Cliente"])
+app.include_router(produto_router, prefix="/produto", tags=["Produto"])
+app.include_router(servico_router, prefix="/servico", tags=["Serviço"])
+app.include_router(venda_router, prefix="/venda", tags=["Venda"])
+app.include_router(despesa_router, prefix="/despesa", tags=["Despesa"])
+app.include_router(agendamento_router, prefix="/agendamento", tags=["Agendamento"])
+app.include_router(backup_router, prefix="/backup", tags=["Backup"])
+app.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
+app.include_router(relatorio_router, prefix="/relatorio", tags=["Relatório"])
 
 @app.get("/")
-async def root():
-    return {"message": "API Studio Depilação - Online"}
-
+def root():
+    return {"message": "API Studio Depilação rodando"}
 
