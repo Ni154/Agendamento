@@ -1,26 +1,16 @@
-from pydantic import BaseModel, Field
-from typing import Optional
-from datetime import date, time
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+from .cliente import Cliente  # Importa modelo Cliente para FK
+from ..config.database import Base
 
-class AgendamentoBase(BaseModel):
-    cliente_id: int
-    data: date
-    hora: str  # horário como string "HH:MM"
-    servicos: str  # lista serviços separados por vírgula (como no seu código original)
-    status: Optional[str] = "agendado"
+class Agendamento(Base):
+    __tablename__ = "agendamentos"
 
-class AgendamentoCreate(AgendamentoBase):
-    pass
+    id = Column(Integer, primary_key=True, index=True)
+    cliente_id = Column(Integer, ForeignKey("clientes.id"), nullable=False)
+    data = Column(String, nullable=False)  # pode ser date se preferir, mas manter string por compatibilidade
+    hora = Column(String, nullable=False)
+    servicos = Column(String)  # Lista ou texto com serviços agendados
+    status = Column(String, default="pendente")
 
-class AgendamentoUpdate(BaseModel):
-    data: Optional[date]
-    hora: Optional[str]
-    servicos: Optional[str]
-    status: Optional[str]
-
-class AgendamentoDB(AgendamentoBase):
-    id: int
-
-    class Config:
-        orm_mode = True
-
+    cliente = relationship("Cliente", back_populates="agendamentos")
