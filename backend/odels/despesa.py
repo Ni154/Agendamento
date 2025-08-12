@@ -1,23 +1,10 @@
-from pydantic import BaseModel, Field
-from typing import Optional
-from datetime import date
+from sqlalchemy import Column, Integer, String, Float
+from ..config.database import Base
 
-class DespesaBase(BaseModel):
-    data: date
-    descricao: str
-    valor: float = Field(..., gt=0)
+class Despesa(Base):
+    __tablename__ = "despesas"
 
-class DespesaCreate(DespesaBase):
-    pass
-
-class DespesaUpdate(BaseModel):
-    data: Optional[date]
-    descricao: Optional[str]
-    valor: Optional[float]
-
-class DespesaDB(DespesaBase):
-    id: int
-
-    class Config:
-        orm_mode = True
-
+    id = Column(Integer, primary_key=True, index=True)
+    data = Column(String, nullable=False)  # pode ser Date se quiser
+    descricao = Column(String, nullable=False)
+    valor = Column(Float, nullable=False)
