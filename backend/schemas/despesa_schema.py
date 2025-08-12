@@ -1,23 +1,21 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
-from datetime import date
 
 class DespesaBase(BaseModel):
-    data: date = Field(..., description="Data da despesa")
-    descricao: str = Field(..., description="Descrição da despesa")
-    valor: float = Field(..., gt=0, description="Valor da despesa")
+    data: str
+    descricao: str
+    valor: float
 
 class DespesaCreate(DespesaBase):
     pass
 
 class DespesaUpdate(BaseModel):
-    data: Optional[date]
+    data: Optional[str]
     descricao: Optional[str]
     valor: Optional[float]
 
-class DespesaRead(DespesaBase):
+class DespesaOut(DespesaBase):
     id: int
 
     class Config:
         orm_mode = True
-
