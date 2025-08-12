@@ -1,54 +1,52 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
-from typing import List, Optional
-from datetime import date
-from config.database import supabase_client
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from typing import List
 
-router = APIRouter(prefix="/despesas", tags=["Despesas"])
+from ..schemas.despesa_schema import DespesaCreate, DespesaOut, DespesaUpdate
+from ..models.despesa import Despesa
+from ..config.database import get_db
 
-class DespesaCreate(BaseModel):
-    data: date
-    descricao: str
-    valor: float = Field(..., gt=0)
+router = APIRouter(prefix="/despesas", tags=["despesas"])
 
-class Despesa(DespesaCreate):
-    id: int
+@router.post("/", response_model=DespesaOut, status_code=status.HTTP_201_CREATED)
+def criar_despesa(despesa: DespesaCreate, db: Session = Depends(get_db)):
+    nova_despesa = Despesa(**despesa.dict())
+    db.add(nova_despesa)
+    db.commit()
+    db.refresh(nova_despesa)
+    return nova_despesa
 
-@router.post("/", response_model=Despesa)
-async def criar_despesa(despesa: DespesaCreate):
-    try:
-        data = {
-            "data": despesa.data.isoformat(),
-            "descricao": despesa.descricao,
-            "valor": despesa.valor
-        }
-        response = supabase_client.table("despesas").insert(data).execute()
-        if response.error:
-            raise HTTPException(status_code=400, detail=response.error.message)
-        novo_id = response.data[0]["id"]
-        return {**data, "id": novo_id}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.get("/", response_model=List[DespesaOut])
+def listar_despesas(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    despesas = db.query(Despesa).offset(skip).limit(limit).all()
+    return despesas
 
-@router.get("/", response_model=List[Despesa])
-async def listar_despesas():
-    try:
-        response = supabase_client.table("despesas").select("*").order("data", desc=True).execute()
-        if response.error:
-            raise HTTPException(status_code=400, detail=response.error.message)
-        return response.data
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.get("/{despesa_id}", response_model=DespesaOut)
+def buscar_despesa(despesa_id: int, db: Session = Depends(get_db)):
+    despesa = db.query(Despesa).filter(Despesa.id == despesa_id).first()
+    if not despesa:
+        raise HTTPException(status_code=404, detail="Despesa não encontrada")
+    return despesa
 
-@router.delete("/{despesa_id}")
-async def excluir_despesa(despesa_id: int):
-    try:
-        response = supabase_client.table("despesas").delete().eq("id", despesa_id).execute()
-        if response.error:
-            raise HTTPException(status_code=400, detail=response.error.message)
-        if response.count == 0:
-            raise HTTPException(status_code=404, detail="Despesa não encontrada")
-        return {"detail": "Despesa excluída com sucesso"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.put("/{despesa_id}", response_model=DespesaOut)
+def atualizar_despesa(despesa_id: int, despesa_atualizada: DespesaUpdate, db: Session = Depends(get_db)):
+    despesa = db.query(Despesa).filter(Despesa.id == despesa_id).first()
+    if not despesa:
+        raise HTTPException(status_code=404, detail="Despesa não encontrada")
 
+    update_data = despesa_atualizada.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(despesa, key, value)
+
+    db.commit()
+    db.refresh(despesa)
+    return despesa
+
+@router.delete("/{despesa_id}", status_code=status.HTTP_204_NO_CONTENT)
+def deletar_despesa(despesa_id: int, db: Session = Depends(get_db)):
+    despesa = db.query(Despesa).filter(Despesa.id == despesa_id).first()
+    if not despesa:
+        raise HTTPException(status_code=404, detail="Despesa não encontrada")
+    db.delete(despesa)
+    db.commit()
+    return None
