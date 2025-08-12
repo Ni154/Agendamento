@@ -1,19 +1,9 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+from sqlalchemy import Column, Integer, String
+from backend.config.database import Base
 
-class UsuarioBase(BaseModel):
-    usuario: str = Field(..., min_length=3, max_length=50)
-
-class UsuarioCreate(UsuarioBase):
-    senha: str = Field(..., min_length=6)
-
-class UsuarioUpdate(BaseModel):
-    usuario: Optional[str] = None
-    senha: Optional[str] = None
-
-class UsuarioDB(UsuarioBase):
-    id: int
-
-    class Config:
-        orm_mode = True
-
+class Usuario(Base):
+    __tablename__ = "usuarios"
+    id = Column(Integer, primary_key=True, index=True)
+    usuario = Column(String, unique=True, index=True, nullable=False)
+    senha = Column(String, nullable=False)
+    role = Column(String, default="user")  # Pode ser admin, user, etc
