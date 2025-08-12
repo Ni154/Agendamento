@@ -1,52 +1,52 @@
-
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 from typing import List
-from datetime import date
 
-from config.database import supabase_client
-from models.agendamento import Agendamento
-from schemas.agendamento_schema import AgendamentoCreate, AgendamentoUpdate, AgendamentoOut
+from ..schemas.agendamento_schema import AgendamentoCreate, AgendamentoOut, AgendamentoUpdate
+from ..models.agendamento import Agendamento
+from ..config.database import get_db
 
-router = APIRouter(prefix="/agendamentos", tags=["Agendamentos"])
+router = APIRouter(prefix="/agendamentos", tags=["agendamentos"])
 
-@router.post("/", response_model=AgendamentoOut)
-async def criar_agendamento(agendamento: AgendamentoCreate):
-    data = agendamento.dict()
-    # Insere no Supabase, retorna id
-    response = supabase_client.table("agendamentos").insert(data).execute()
-    if response.error:
-        raise HTTPException(status_code=400, detail=response.error.message)
-    novo_id = response.data[0]["id"]
-    return {**data, "id": novo_id}
+@router.post("/", response_model=AgendamentoOut, status_code=status.HTTP_201_CREATED)
+def criar_agendamento(agendamento: AgendamentoCreate, db: Session = Depends(get_db)):
+    novo_agendamento = Agendamento(**agendamento.dict())
+    db.add(novo_agendamento)
+    db.commit()
+    db.refresh(novo_agendamento)
+    return novo_agendamento
 
 @router.get("/", response_model=List[AgendamentoOut])
-async def listar_agendamentos(data_inicio: date = None, data_fim: date = None):
-    query = supabase_client.table("agendamentos").select("*")
-    if data_inicio and data_fim:
-        query = query.gte("data", data_inicio.isoformat()).lte("data", data_fim.isoformat())
-    response = query.execute()
-    if response.error:
-        raise HTTPException(status_code=400, detail=response.error.message)
-    return response.data
+def listar_agendamentos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    agendamentos = db.query(Agendamento).offset(skip).limit(limit).all()
+    return agendamentos
 
 @router.get("/{agendamento_id}", response_model=AgendamentoOut)
-async def buscar_agendamento(agendamento_id: int):
-    response = supabase_client.table("agendamentos").select("*").eq("id", agendamento_id).single().execute()
-    if response.error or not response.data:
+def buscar_agendamento(agendamento_id: int, db: Session = Depends(get_db)):
+    agendamento = db.query(Agendamento).filter(Agendamento.id == agendamento_id).first()
+    if not agendamento:
         raise HTTPException(status_code=404, detail="Agendamento não encontrado")
-    return response.data
+    return agendamento
 
 @router.put("/{agendamento_id}", response_model=AgendamentoOut)
-async def atualizar_agendamento(agendamento_id: int, agendamento: AgendamentoUpdate):
-    data = agendamento.dict(exclude_unset=True)
-    response = supabase_client.table("agendamentos").update(data).eq("id", agendamento_id).execute()
-    if response.error:
-        raise HTTPException(status_code=400, detail=response.error.message)
-    return response.data[0]
+def atualizar_agendamento(agendamento_id: int, agendamento_atualizado: AgendamentoUpdate, db: Session = Depends(get_db)):
+    agendamento = db.query(Agendamento).filter(Agendamento.id == agendamento_id).first()
+    if not agendamento:
+        raise HTTPException(status_code=404, detail="Agendamento não encontrado")
 
-@router.delete("/{agendamento_id}")
-async def deletar_agendamento(agendamento_id: int):
-    response = supabase_client.table("agendamentos").delete().eq("id", agendamento_id).execute()
-    if response.error:
-        raise HTTPException(status_code=400, detail=response.error.message)
-    return {"detail": "Agendamento excluído com sucesso"}
+    update_data = agendamento_atualizado.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(agendamento, key, value)
+
+    db.commit()
+    db.refresh(agendamento)
+    return agendamento
+
+@router.delete("/{agendamento_id}", status_code=status.HTTP_204_NO_CONTENT)
+def deletar_agendamento(agendamento_id: int, db: Session = Depends(get_db)):
+    agendamento = db.query(Agendamento).filter(Agendamento.id == agendamento_id).first()
+    if not agendamento:
+        raise HTTPException(status_code=404, detail="Agendamento não encontrado")
+    db.delete(agendamento)
+    db.commit()
+    return None
