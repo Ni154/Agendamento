@@ -1,48 +1,55 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, status
+from sqlalchemy.orm import Session
+from sqlalchemy import func, and_
 from typing import Optional
 from datetime import date
-from config.database import supabase_client
+from ..config.database import get_db
+from ..models import venda, despesa
 
-router = APIRouter(prefix="/relatorios", tags=["Relatórios"])
+router = APIRouter(prefix="/relatorio", tags=["relatorio"])
 
-@router.get("/vendas/total")
-async def total_vendas():
-    # Soma total das vendas não canceladas
-    response = supabase_client.table("vendas").select("total", count="exact").neq("cancelada", 1).execute()
-    if response.error:
-        raise HTTPException(status_code=400, detail=response.error.message)
-    total = sum(v["total"] for v in response.data) if response.data else 0.0
-    return {"total_vendas": total}
+@router.get("/vendas", status_code=status.HTTP_200_OK)
+def relatorio_vendas(
+    data_inicio: Optional[date] = Query(None, description="Data inicial no formato YYYY-MM-DD"),
+    data_fim: Optional[date] = Query(None, description="Data final no formato YYYY-MM-DD"),
+    db: Session = Depends(get_db),
+):
+    query = db.query(venda.Venda).filter(venda.Venda.cancelada == False)
+    if data_inicio:
+        query = query.filter(venda.Venda.data >= data_inicio)
+    if data_fim:
+        query = query.filter(venda.Venda.data <= data_fim)
 
-@router.get("/vendas/periodo")
-async def vendas_periodo(data_inicio: date, data_fim: date):
-    if data_inicio > data_fim:
-        raise HTTPException(status_code=400, detail="Data início maior que data fim")
-    response = supabase_client.table("vendas")\
-        .select("*")\
-        .gte("data", data_inicio.isoformat())\
-        .lte("data", data_fim.isoformat())\
-        .neq("cancelada", 1)\
-        .execute()
-    if response.error:
-        raise HTTPException(status_code=400, detail=response.error.message)
-    return {"vendas": response.data}
+    vendas = query.all()
 
-@router.get("/produtos/mais_vendidos")
-async def produtos_mais_vendidos(limit: Optional[int] = 10):
-    # Consulta itens vendidos, somando quantidade, ordenando decrescente
-    query = """
-        SELECT item_id, SUM(quantidade) as total_vendido
-        FROM venda_itens
-        WHERE tipo = 'produto'
-        GROUP BY item_id
-        ORDER BY total_vendido DESC
-        LIMIT %s
-    """ % limit
-    response = supabase_client.rpc("exec_sql", {"sql": query}).execute()
-    # Nota: Supabase não suporta exec direto SQL na API pública, isso é ilustrativo.
-    # Você deve criar uma função RPC no Postgres para isso ou adaptar via client SQL.
-    if response.error:
-        raise HTTPException(status_code=400, detail=response.error.message)
-    return {"produtos_mais_vendidos": response.data}
+    total_vendas = sum(v.total for v in vendas)
+    quantidade_vendas = len(vendas)
 
+    return {
+        "total_vendas": float(total_vendas),
+        "quantidade_vendas": quantidade_vendas,
+        "vendas": [{"id": v.id, "cliente_id": v.cliente_id, "data": v.data.isoformat(), "total": float(v.total)} for v in vendas]
+    }
+
+@router.get("/despesas", status_code=status.HTTP_200_OK)
+def relatorio_despesas(
+    data_inicio: Optional[date] = Query(None, description="Data inicial no formato YYYY-MM-DD"),
+    data_fim: Optional[date] = Query(None, description="Data final no formato YYYY-MM-DD"),
+    db: Session = Depends(get_db),
+):
+    query = db.query(despesa.Despesa)
+    if data_inicio:
+        query = query.filter(despesa.Despesa.data >= data_inicio)
+    if data_fim:
+        query = query.filter(despesa.Despesa.data <= data_fim)
+
+    despesas = query.all()
+
+    total_despesas = sum(d.valor for d in despesas)
+    quantidade_despesas = len(despesas)
+
+    return {
+        "total_despesas": float(total_despesas),
+        "quantidade_despesas": quantidade_despesas,
+        "despesas": [{"id": d.id, "descricao": d.descricao, "data": d.data.isoformat(), "valor": float(d.valor)} for d in despesas]
+    }
