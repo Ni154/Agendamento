@@ -1,16 +1,22 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 import os
+from dotenv import load_dotenv
 
-POSTGRES_HOST = os.getenv("POSTGRES_HOST", "postgres.railway.internal")
-POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
-POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "IItWDGjcnNIDuCQlpGnKeiPhwmoaFhNh")
-POSTGRES_DB = os.getenv("POSTGRES_DB", "railway")
+# Carrega variáveis do .env (caso esteja rodando localmente)
+load_dotenv()
 
-DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+# Pega a URL completa do banco direto do Railway
+DATABASE_URL = os.getenv("DATABASE_URL")
 
+if not DATABASE_URL:
+    raise ValueError("❌ DATABASE_URL não encontrada nas variáveis de ambiente!")
+
+# Cria o engine do SQLAlchemy
 engine = create_engine(DATABASE_URL)
+
+# Sessão padrão
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Base para os modelos
 Base = declarative_base()
