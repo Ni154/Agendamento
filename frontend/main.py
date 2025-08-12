@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # Ajuste aqui a URL da sua API backend (FastAPI)
-API_URL = "https://seu-backend-url.railway.app"
+API_URL = "https://agendamento-banco-de-dados.up.railway.app"
 
 # --- SESSION STATE ---
 if "login" not in st.session_state:
