@@ -1,12 +1,20 @@
-fastapi==0.95.2
-uvicorn[standard]==0.22.0
-pydantic==1.10.7
-supabase-py==1.0.3
-python-multipart==0.0.6
-reportlab==3.7.1
-Pillow==10.0.0
-pandas==2.0.3
-matplotlib==3.7.1
-streamlit==1.24.1
-streamlit-drawable-canvas==0.10.0
+[phases.setup]
+nixPkgs = [
+    "python311",
+    "gcc",
+    "gnumake",
+    "zlib",
+    "libjpeg",
+    "freetype",
+    "libpng",
+    "pkg-config"
+]
 
+[phases.install]
+cmds = [
+    "pip install --upgrade pip",
+    "pip install -r requirements.txt"
+]
+
+[start]
+cmd = "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"
