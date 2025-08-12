@@ -1,19 +1,34 @@
 from pydantic import BaseModel
+from typing import List, Optional
 
-class ServicoBase(BaseModel):
-    nome: str
-    unidade: str | None = None
-    quantidade: int | None = 0
-    valor: float
+class VendaItemBase(BaseModel):
+    tipo: str  # "produto" ou "servico"
+    item_id: int
+    quantidade: int
+    preco: float
 
-class ServicoCreate(ServicoBase):
+class VendaItemCreate(VendaItemBase):
     pass
 
-class ServicoUpdate(ServicoBase):
-    pass
-
-class ServicoResponse(ServicoBase):
+class VendaItemResponse(VendaItemBase):
     id: int
+
+    class Config:
+        orm_mode = True
+
+class VendaBase(BaseModel):
+    cliente_id: int
+    forma_pagamento: Optional[str] = None
+
+class VendaCreate(VendaBase):
+    itens: List[VendaItemCreate]
+
+class VendaResponse(VendaBase):
+    id: int
+    data: str
+    total: float
+    cancelada: bool
+    itens: List[VendaItemResponse]
 
     class Config:
         orm_mode = True
