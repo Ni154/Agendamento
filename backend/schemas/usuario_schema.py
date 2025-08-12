@@ -1,19 +1,18 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel
 
-class UsuarioBase(BaseModel):
-    usuario: str = Field(..., description="Nome do usuário")
-
-class UsuarioCreate(UsuarioBase):
-    senha: str = Field(..., min_length=6, description="Senha do usuário")
+class UsuarioCreate(BaseModel):
+    usuario: str
+    senha: str
+    role: str = "user"
 
 class UsuarioLogin(BaseModel):
     usuario: str
     senha: str
 
-class UsuarioRead(UsuarioBase):
+class UsuarioResponse(BaseModel):
     id: int
+    usuario: str
+    role: str
 
     class Config:
         orm_mode = True
-
