@@ -1,8 +1,8 @@
 import streamlit as st
 import requests
-from datetime import date
 
-API_URL = "https://agendamento-studio.up.railway.app"  # Ajuste seu endpoint backend
+# Ajuste aqui a URL da sua API backend (FastAPI)
+API_URL = "https://seu-backend-url.railway.app"
 
 # --- SESSION STATE ---
 if "login" not in st.session_state:
@@ -20,8 +20,11 @@ def login_api(usuario, senha):
         resp = requests.post(f"{API_URL}/auth/login", json={"usuario": usuario, "senha": senha})
         if resp.status_code == 200:
             return resp.json().get("access_token")
-        return None
-    except Exception:
+        else:
+            st.error(f"Erro no login: {resp.json().get('detail')}")
+            return None
+    except Exception as e:
+        st.error(f"Erro na conexão: {e}")
         return None
 
 def logout():
@@ -123,34 +126,34 @@ def main():
             tela_dashboard()
         elif menu == "Cadastro Cliente":
             st.subheader("🧍 Cadastro Cliente")
-            st.info("Aqui irá o componente de cadastro cliente")
+            st.info("Aqui vai o componente de cadastro cliente")
         elif menu == "Cadastro Empresa":
             st.subheader("🏢 Cadastro Empresa")
-            st.info("Aqui irá o componente de cadastro empresa")
+            st.info("Aqui vai o componente de cadastro empresa")
         elif menu == "Cadastro Produtos":
             st.subheader("📦 Cadastro Produtos")
-            st.info("Aqui irá o componente de cadastro produtos")
+            st.info("Aqui vai o componente de cadastro produtos")
         elif menu == "Cadastro Serviços":
             st.subheader("💆 Cadastro Serviços")
-            st.info("Aqui irá o componente de cadastro serviços")
+            st.info("Aqui vai o componente de cadastro serviços")
         elif menu == "Agendamento":
             st.subheader("📅 Agendamento")
-            st.info("Aqui irá o componente de agendamento")
+            st.info("Aqui vai o componente de agendamento")
         elif menu == "Vendas":
             st.subheader("💰 Vendas")
-            st.info("Aqui irá o componente de vendas")
+            st.info("Aqui vai o componente de vendas")
         elif menu == "Cancelar Vendas":
             st.subheader("🚫 Cancelar Vendas")
-            st.info("Aqui irá o componente para cancelar vendas")
+            st.info("Aqui vai o componente para cancelar vendas")
         elif menu == "Despesas":
             st.subheader("💸 Despesas")
-            st.info("Aqui irá o componente de despesas")
+            st.info("Aqui vai o componente de despesas")
         elif menu == "Relatórios":
             st.subheader("📈 Relatórios")
-            st.info("Aqui irá o componente de relatórios")
+            st.info("Aqui vai o componente de relatórios")
         elif menu == "Backup":
             st.subheader("💾 Backup")
-            st.info("Aqui irá o componente de backup")
+            st.info("Aqui vai o componente de backup")
         else:
             st.write("Menu não implementado ainda")
 
