@@ -1,46 +1,149 @@
-import requests
-import streamlit as st
-from datetime import datetime
+// ==================== CONFIGURAÇÃO ====================
+// Ajuste para a URL pública do seu backend no Railway
+const API_BASE_URL = "https://SEU-PROJETO.up.railway.app";
 
-API_URL = st.secrets.get("API_URL") or "http://localhost:8000"  # Ajuste para seu backend
+// ==================== FUNÇÕES DE REQUISIÇÃO ====================
 
-def api_get(endpoint, token=None):
-    headers = {"Authorization": f"Bearer {token}"} if token else {}
-    try:
-        resp = requests.get(f"{API_URL}{endpoint}", headers=headers, timeout=10)
-        resp.raise_for_status()
-        return resp.json()
-    except requests.RequestException as e:
-        st.error(f"Erro na requisição GET: {e}")
-        return None
+// Função genérica para requisições GET
+async function apiGet(endpoint) {
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`);
+        if (!response.ok) throw new Error(`Erro: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Erro no GET:", error);
+        alert("Erro ao buscar dados.");
+        return null;
+    }
+}
 
-def api_post(endpoint, data, token=None):
-    headers = {"Authorization": f"Bearer {token}"} if token else {}
-    try:
-        resp = requests.post(f"{API_URL}{endpoint}", json=data, headers=headers, timeout=10)
-        resp.raise_for_status()
-        return resp.json()
-    except requests.RequestException as e:
-        st.error(f"Erro na requisição POST: {e}")
-        return None
+// Função genérica para requisições POST
+async function apiPost(endpoint, data) {
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error(`Erro: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Erro no POST:", error);
+        alert("Erro ao enviar dados.");
+        return null;
+    }
+}
 
-def formatar_data_br(data_iso):
-    try:
-        return datetime.strptime(data_iso, "%Y-%m-%d").strftime("%d/%m/%Y")
-    except Exception:
-        return data_iso
+// Função genérica para requisições PUT
+async function apiPut(endpoint, data) {
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error(`Erro: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Erro no PUT:", error);
+        alert("Erro ao atualizar dados.");
+        return null;
+    }
+}
 
-def limpa_campo(texto):
-    return texto.strip() if texto else texto
+// Função genérica para requisições DELETE
+async function apiDelete(endpoint) {
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, { method: "DELETE" });
+        if (!response.ok) throw new Error(`Erro: ${response.status}`);
+        return true;
+    } catch (error) {
+        console.error("Erro no DELETE:", error);
+        alert("Erro ao excluir dados.");
+        return false;
+    }
+}
 
-def verifica_login():
-    if not st.session_state.get("login", False):
-        st.warning("Você precisa estar logado para acessar esta funcionalidade.")
-        st.stop()
+// ==================== FUNÇÕES ESPECÍFICAS ====================
 
-def token_header():
-    token = st.session_state.get("token")
-    if token:
-        return {"Authorization": f"Bearer {token}"}
-    return {}
+// Login de usuário
+async function loginUsuario(email, senha) {
+    return await apiPost("/usuarios/login", { email, senha });
+}
 
+// Cadastro de usuário
+async function cadastrarUsuario(nome, email, senha) {
+    return await apiPost("/usuarios", { nome, email, senha });
+}
+
+// Listar clientes
+async function listarClientes() {
+    return await apiGet("/clientes");
+}
+
+// Cadastrar cliente (com ficha de anamnese)
+async function cadastrarCliente(dados) {
+    return await apiPost("/clientes", dados);
+}
+
+// Listar produtos
+async function listarProdutos() {
+    return await apiGet("/produtos");
+}
+
+// Cadastrar produto
+async function cadastrarProduto(dados) {
+    return await apiPost("/produtos", dados);
+}
+
+// Listar serviços
+async function listarServicos() {
+    return await apiGet("/servicos");
+}
+
+// Cadastrar serviço
+async function cadastrarServico(dados) {
+    return await apiPost("/servicos", dados);
+}
+
+// Listar agendamentos
+async function listarAgendamentos() {
+    return await apiGet("/agendamentos");
+}
+
+// Criar agendamento
+async function criarAgendamento(dados) {
+    return await apiPost("/agendamentos", dados);
+}
+
+// Registrar venda
+async function registrarVenda(dados) {
+    return await apiPost("/vendas", dados);
+}
+
+// Lançar despesa
+async function lancarDespesa(dados) {
+    return await apiPost("/despesas", dados);
+}
+
+// Gerar relatório em PDF
+async function gerarRelatorio(tipo) {
+    return await apiGet(`/relatorios/${tipo}`);
+}
+
+// ==================== EXPORTAR FUNÇÕES ====================
+export {
+    loginUsuario,
+    cadastrarUsuario,
+    listarClientes,
+    cadastrarCliente,
+    listarProdutos,
+    cadastrarProduto,
+    listarServicos,
+    cadastrarServico,
+    listarAgendamentos,
+    criarAgendamento,
+    registrarVenda,
+    lancarDespesa,
+    gerarRelatorio
+};
