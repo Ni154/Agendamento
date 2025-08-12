@@ -1,20 +1,12 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy.ext.declarative import declarative_base
 
-class ProdutoBase(BaseModel):
-    nome: str = Field(..., example="Cera depilatória")
-    quantidade: int = Field(..., ge=0, example=10)
-    preco_venda: float = Field(..., ge=0, example=59.90)
+Base = declarative_base()
 
-class ProdutoCreate(ProdutoBase):
-    pass
+class Produto(Base):
+    __tablename__ = "produtos"
 
-class ProdutoUpdate(ProdutoBase):
-    pass
-
-class ProdutoDB(ProdutoBase):
-    id: int
-
-    class Config:
-        orm_mode = True
-
+    id = Column(Integer, primary_key=True, index=True)
+    nome = Column(String, nullable=False, unique=True)
+    quantidade = Column(Integer, default=0)
+    preco_venda = Column(Float, nullable=False)
