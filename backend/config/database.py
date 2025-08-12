@@ -1,15 +1,11 @@
-from supabase import create_client, Client
-import os
-from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-load_dotenv()  # Carrega variáveis do .env
+DATABASE_URL = "postgresql://postgres:IItWDGjcnNIDuCQlpGnKeiPhwmoaFhNh@crossover.proxy.rlwy.net:50438/railway"
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY_SERVICE_ROLE = os.getenv("SUPABASE_KEY_SERVICE_ROLE")
-SUPABASE_KEY_PUBLISHABLE = os.getenv("SUPABASE_KEY_PUBLISHABLE")
+engine = create_engine(DATABASE_URL)
 
-# Cliente para backend - uso com privilégios completos
-supabase_service: Client = create_client(SUPABASE_URL, SUPABASE_KEY_SERVICE_ROLE)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Cliente para frontend/public - uso limitado
-supabase_public: Client = create_client(SUPABASE_URL, SUPABASE_KEY_PUBLISHABLE)
+Base = declarative_base()
