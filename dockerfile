@@ -1,27 +1,28 @@
-# Escolhe uma imagem oficial do Python
+# Imagem base oficial do Python
 FROM python:3.11-slim
 
-# Define diretório de trabalho dentro do container
+# Define diretório de trabalho
 WORKDIR /app
 
-# Instala dependências de sistema necessárias para o psycopg2 e outros pacotes
+# Instala pacotes de sistema necessários para o psycopg2 e outros
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copia arquivos de dependências primeiro (para aproveitar cache no rebuild)
-COPY backend/requirements.txt .
+# Copia apenas o requirements.txt primeiro para aproveitar cache no rebuild
+COPY backend/requirements.txt /app/requirements.txt
 
-# Instala as dependências do Python
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Instala dependências do Python
+RUN python -m ensurepip --upgrade && \
+    pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r /app/requirements.txt
 
-# Copia o código do backend
-COPY backend/ .
+# Copia todo o código do backend
+COPY backend/ /app/
 
 # Expõe a porta que o Uvicorn vai usar
 EXPOSE 8000
 
-# Comando para rodar a aplicação no Railway
+# Comando para rodar o backend FastAPI no Railway
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
