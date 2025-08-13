@@ -1,21 +1,25 @@
-# Usar imagem base oficial do Python
+# Usar Python 3.11 como base
 FROM python:3.11-slim
 
 # Definir diretório de trabalho
 WORKDIR /app
 
-# Copiar requirements primeiro (para otimizar cache)
-COPY backend/requirements.txt .
+# Evitar prompts de interação
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Copiar arquivos de dependências primeiro
+COPY requirements.txt .
 
 # Atualizar pip e instalar dependências
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
 
-# Copiar todo o backend para o container
-COPY backend/ .
+# Copiar todo o código do backend
+COPY . .
 
-# Expõe a porta do FastAPI
+# Expor a porta usada pelo FastAPI
 EXPOSE 8000
 
-# Comando para rodar a aplicação
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Comando para rodar o backend
+CMD ["uvicorn", "main:app", "--host",]()
