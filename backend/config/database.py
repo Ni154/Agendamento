@@ -1,22 +1,26 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-import os
 from dotenv import load_dotenv
+import os
 
-# Carrega variáveis do .env (caso esteja rodando localmente)
+# Carrega .env localmente (se existir)
 load_dotenv()
 
-# Pega a URL completa do banco direto do Railway
 DATABASE_URL = os.getenv("DATABASE_URL")
-
 if not DATABASE_URL:
     raise ValueError("❌ DATABASE_URL não encontrada nas variáveis de ambiente!")
 
-# Cria o engine do SQLAlchemy
+# Railway geralmente exige SSL
+if "sslmode" not in DATABASE_URL:
+    DATABASE_URL += "?sslmode=require"
+
 engine = create_engine(DATABASE_URL)
-
-# Sessão padrão
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Base para os modelos
 Base = declarative_base()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
