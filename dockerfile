@@ -1,22 +1,21 @@
+# Usar imagem base oficial do Python
 FROM python:3.11-slim
 
+# Definir diretório de trabalho
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Copiar requirements primeiro (para otimizar cache)
+COPY backend/requirements.txt .
 
-# Copia apenas requirements primeiro (cache build)
-COPY backend/requirements.txt /app/requirements.txt
+# Atualizar pip e instalar dependências
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Instala pip e dependências Python
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r /app/requirements.txt
+# Copiar todo o backend para o container
+COPY backend/ .
 
-# Copia código do backend
-COPY backend/ /app/
-
+# Expõe a porta do FastAPI
 EXPOSE 8000
 
+# Comando para rodar a aplicação
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
