@@ -1,8 +1,4 @@
-diff --git a/frontend/components/dashboard.py b/frontend/components/dashboard.py
-index 33efd8894f4a7ac2d13dba0639b25620355445ba..e26878e12e6eebbf1fe7c4d21ab46b215e7345de 100644
---- a/frontend/components/dashboard.py
-+++ b/frontend/components/dashboard.py
-@@ -1,28 +1,26 @@
+
  import streamlit as st
  import requests
  
