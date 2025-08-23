@@ -1,1 +1,1 @@
-web: uvicorn projeto.backend.app:app --host 0.0.0.0 --port ${PORT:-8000}
+web: gunicorn -k gthread --workers 2 --threads 8 --timeout 120 --bind 0.0.0.0:$PORT backend.app:app
