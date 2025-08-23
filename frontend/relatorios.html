@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Studio • Relatórios</title>
+  <link rel="stylesheet" href="/assets/css/style.css?v=4"/>
+  <link rel="stylesheet" href="/assets/css/app.css?v=4"/>
+  <script>(function(){try{const q=new URLSearchParams(location.search);const e=q.get('embed')==='1'||(self!==top);if(!e)return;document.head.insertAdjacentHTML('beforeend',`<style>.sidebar,.topbar,.tabsbar{display:none!important}.main{margin-left:0!important}.content{padding:24px 16px!important;min-height:100vh!important}</style>`);}catch(_){}})();</script>
+</head>
+<body data-brand="#B89B61" data-brand2="#E7DBBE">
+  <aside class="sidebar" id="appSidebar">
+    <div class="sb-top">
+      <div class="logo-img" style="background-image:url('/assets/img/logo.png')"></div>
+      <div class="brandname">Studio Priscila Santos</div>
+      <button class="toggle" id="btnToggle">≡</button>
+    </div>
+    <nav class="sb-menu">
+      <a class="sb-item" href="/dashboard.html"><span class="sb-ico">🏠</span><span class="sb-text">Início</span></a>
+      <a class="sb-item" href="/clientes.html"><span class="sb-ico">🧍</span><span class="sb-text">Cadastro Cliente</span></a>
+      <a class="sb-item" href="/produtos.html"><span class="sb-ico">📦</span><span class="sb-text">Cadastro Produtos</span></a>
+      <a class="sb-item" href="/servicos.html"><span class="sb-ico">💆</span><span class="sb-text">Cadastro Serviços</span></a>
+      <a class="sb-item" href="/agendamentos.html"><span class="sb-ico">📅</span><span class="sb-text">Agendamento</span></a>
+      <a class="sb-item" href="/vendas.html"><span class="sb-ico">💰</span><span class="sb-text">Vendas</span></a>
+      <a class="sb-item" href="/despesas.html"><span class="sb-ico">💸</span><span class="sb-text">Despesas</span></a>
+      <a class="sb-item active" href="/relatorios.html"><span class="sb-ico">📈</span><span class="sb-text">Relatórios</span></a>
+      <a class="sb-item" href="/index.html"><span class="sb-ico">🔓</span><span class="sb-text">Sair</span></a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header class="topbar"><div class="topbar-inner"><button id="btnToggleTop" class="toggle">≡</button><div class="logo"></div><div class="title">Relatórios</div></div></header>
+    <div class="content">
+      <div class="card">
+        <h2>Relatórios</h2>
+        <form id="relForm" class="form">
+          <div class="grid-2">
+            <div class="input">
+              <label>Tipo</label>
+              <select id="tipo">
+                <option value="vendas">Vendas</option>
+                <option value="agendamentos">Agendamentos</option>
+                <option value="despesas">Despesas</option>
+                <option value="estoque">Estoque</option>
+              </select>
+            </div>
+            <div></div>
+            <div class="input"><label>De</label><input id="de" type="date"></div>
+            <div class="input"><label>Até</label><input id="ate" type="date"></div>
+          </div>
+          <div class="actions">
+            <button class="btn" type="submit">Gerar</button>
+            <button class="btn btn-outline" type="button" id="btnCsv">Exportar CSV</button>
+            <div id="msg" class="note"></div>
+          </div>
+        </form>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h2>Resultado</h2>
+        <div id="result" class="note">—</div>
+      </div>
+    </div>
+  </div>
+
+  <script defer>
+  const $=s=>document.querySelector(s);
+  function toggleSidebar(){ $('#appSidebar')?.classList.toggle('collapsed'); }
+  $('#btnToggle')?.addEventListener('click', toggleSidebar);
+  $('#btnToggleTop')?.addEventListener('click', toggleSidebar);
+
+  $('#relForm')?.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const tipo=$('#tipo').value, de=$('#de').value, ate=$('#ate').value;
+    const u=new URL(`/api/relatorios/${tipo}`, location.origin);
+    if(de) u.searchParams.set('de',de);
+    if(ate) u.searchParams.set('ate',ate);
+    const r=await fetch(u); let d=null; try{d=await r.json();}catch(_){}
+    if(!r.ok){ $('#msg').textContent=(d&&(d.error||d.message))||`Erro ${r.status}`; $('#msg').className='note error'; return; }
+    $('#msg').textContent=''; $('#result').textContent=JSON.stringify(d,null,2);
+  });
+
+  $('#btnCsv')?.addEventListener('click', ()=>{
+    const tipo=$('#tipo').value, de=$('#de').value, ate=$('#ate').value;
+    const u=new URL(`/api/relatorios/${tipo}.csv`, location.origin);
+    if(de) u.searchParams.set('de',de);
+    if(ate) u.searchParams.set('ate',ate);
+    location.href = u.pathname + u.search;
+  });
+
+  (function(){const q=new URLSearchParams(location.search); if(q.get('embed')==='1'||(self!==top)){document.querySelectorAll('.sb-menu a').forEach(a=>{const u=new URL(a.href,location.origin);u.searchParams.set('embed','1');a.href=u.pathname+u.search;});}})();
+  </script>
+</body>
+</html>
