@@ -1,28 +1,38 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from ..config.database import get_db
-from sqlalchemy.orm import Session
+from flask import Blueprint, jsonify
+from datetime import datetime, date, timedelta
 from sqlalchemy import func
-from ..models import cliente, venda, produto, servico, despesa
+from backend import db
+from backend.models.cliente import Cliente
+from backend.models.produto import Produto
+from backend.models.sale import Sale
+from backend.models.despesa import Despesa
+from backend.models.appointment import Appointment
 
-router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+dash_bp = Blueprint("dashboard", __name__)
 
-@router.get("/", status_code=status.HTTP_200_OK)
-def get_dashboard_data(db: Session = Depends(get_db)):
+@dash_bp.get("/")
+def kpis():
+    today = date.today()
+    tomorrow = today + timedelta(days=1)
 
-    total_clientes = db.query(func.count(cliente.Cliente.id)).scalar()
-    total_vendas = db.query(func.count(venda.Venda.id)).filter(venda.Venda.cancelada == False).scalar()
-    total_produtos = db.query(func.count(produto.Produto.id)).scalar()
-    total_servicos = db.query(func.count(servico.Servico.id)).scalar()
-    total_despesas = db.query(func.coalesce(func.sum(despesa.Despesa.valor), 0)).scalar()
-    total_faturamento = db.query(func.coalesce(func.sum(venda.Venda.total), 0)).filter(venda.Venda.cancelada == False).scalar()
-    lucro_liquido = total_faturamento - total_despesas
+    clientes_total = db.session.query(func.count(Cliente.id)).scalar() or 0
+    estoque_total = db.session.query(func.coalesce(func.sum(Produto.estoque),0)).scalar() or 0
+    faturamento_hoje = (db.session.query(func.coalesce(func.sum(Sale.total),0))
+                        .filter(Sale.created_at >= datetime.combine(today, datetime.min.time()),
+                                Sale.created_at < datetime.combine(tomorrow, datetime.min.time()),
+                                Sale.status=="completed").scalar() or 0)
+    despesas_hoje = (db.session.query(func.coalesce(func.sum(Despesa.total),0))
+                     .filter(Despesa.data == today).scalar() or 0)
+    agendamentos_hoje = (db.session.query(func.count(Appointment.id))
+                         .filter(Appointment.start_at >= datetime.combine(today, datetime.min.time()),
+                                 Appointment.start_at < datetime.combine(tomorrow, datetime.min.time())).scalar() or 0)
 
-    return {
-        "total_clientes": total_clientes,
-        "total_vendas": total_vendas,
-        "total_produtos": total_produtos,
-        "total_servicos": total_servicos,
-        "total_despesas": float(total_despesas),
-        "total_faturamento": float(total_faturamento),
-        "lucro_liquido": float(lucro_liquido)
-    }
+    return jsonify({
+        "ok": True,
+        "clientes_total": int(clientes_total),
+        "estoque_total": int(estoque_total),
+        "faturamento_hoje": float(faturamento_hoje),
+        "despesas_hoje": float(despesas_hoje),
+        "resultado_hoje": float(faturamento_hoje - despesas_hoje),
+        "agendamentos_hoje": int(agendamentos_hoje),
+    })
