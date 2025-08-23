@@ -1,5 +1,5 @@
 // ======== CONFIG (mesma origem) ========
-const API_BASE = 'http://127.0.0.1:5000';
+const API_BASE = (window.API_BASE || `${location.protocol}//${location.host}`);
 const USE_CREDENTIALS = true;
 
 console.log('[auth.js] carregado');
