@@ -1,21 +1,18 @@
 # backend/app.py
-import os, sys, traceback
-
-# Garantir que a raiz do projeto (pasta que contém "backend/") está no PYTHONPATH
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+import os
+import traceback
 
 try:
-    from backend import create_app
-    from backend.config import Config
+    # Quando o serviço tem Root Directory = backend/, o pacote atual é o próprio diretório.
+    # Portanto, importamos direto de __init__ e config locais.
+    from __init__ import create_app
+    from config import Config
 except Exception:
-    print("\n[FALHA] import backend / Config")
+    print("\n[FALHA] import create_app / Config")
     traceback.print_exc()
     raise
 
-# Expor app para servidores WSGI (gunicorn)
+# Expor app para servidores WSGI (gunicorn) e para execução direta
 app = create_app()
 
 if __name__ == "__main__":
@@ -23,6 +20,7 @@ if __name__ == "__main__":
     port = int(os.getenv("FLASK_RUN_PORT", "5000"))
     debug = os.getenv("FLASK_DEBUG", "1") == "1" or os.getenv("FLASK_ENV") == "development"
 
+    # Log amigável da conexão de banco (sem mostrar senha)
     try:
         uri = Config.SQLALCHEMY_DATABASE_URI
         engine_part = uri.split("://", 1)[0]
