@@ -1,36 +1,34 @@
- from fastapi import FastAPI
- from fastapi.middleware.cors import CORSMiddleware
- from backend.config.database import engine, Base
- from dotenv import load_dotenv
- import os
- 
- load_dotenv()
- 
- # IMPORTANTE: importar models para registrar no metadata
--from backend.models import (
-+from .models import (
-     Cliente, Produto, Servico, Agendamento, Venda, Despesa, Usuario
- )
- 
- # Cria/verifica tabelas
- Base.metadata.create_all(bind=engine)
- 
- app = FastAPI(title="Studio Depilação API")
- 
- # Ajuste o domínio do seu Streamlit aqui
- origins = [
-     "https://agendamento-banco-de-dados.up.railway.app",   # backend
-     "https://SEU-APP.streamlit.app",                       # frontend streamlit
-     "http://localhost:8501",
-     "http://127.0.0.1:8501",
- ]
- app.add_middleware(
-     CORSMiddleware,
-     allow_origins=origins,
-     allow_credentials=True,
-     allow_methods=["*"],
-     allow_headers=["*"],
- )
- 
- # Rotas
- from backend.routes.cliente_routes import router as cliente_router
+# backend/app.py
+import os, sys, traceback
+
+# Garantir que a raiz do projeto (pasta que contém "backend/") está no PYTHONPATH
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+try:
+    from backend import create_app
+    from backend.config import Config
+except Exception:
+    print("\n[FALHA] import backend / Config")
+    traceback.print_exc()
+    raise
+
+# Expor app para servidores WSGI (gunicorn)
+app = create_app()
+
+if __name__ == "__main__":
+    host = os.getenv("FLASK_RUN_HOST", "0.0.0.0")
+    port = int(os.getenv("FLASK_RUN_PORT", "5000"))
+    debug = os.getenv("FLASK_DEBUG", "1") == "1" or os.getenv("FLASK_ENV") == "development"
+
+    try:
+        uri = Config.SQLALCHEMY_DATABASE_URI
+        engine_part = uri.split("://", 1)[0]
+        engine, driver = (engine_part.split("+", 1) + [""])[:2]
+        print(f"[DB] Usando: {uri}  (engine={engine}{'+'+driver if driver else ''})")
+    except Exception:
+        pass
+
+    app.run(host=host, port=port, debug=debug)
