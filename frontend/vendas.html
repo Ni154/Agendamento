@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Studio • Vendas</title>
+  <link rel="stylesheet" href="/assets/css/style.css?v=4"/>
+  <link rel="stylesheet" href="/assets/css/app.css?v=4"/>
+  <script>(function(){try{const q=new URLSearchParams(location.search);const e=q.get('embed')==='1'||(self!==top);if(!e)return;document.head.insertAdjacentHTML('beforeend',`<style>.sidebar,.topbar,.tabsbar{display:none!important}.main{margin-left:0!important}.content{padding:24px 16px!important;min-height:100vh!important}</style>`);}catch(_){}})();</script>
+</head>
+<body data-brand="#B89B61" data-brand2="#E7DBBE">
+  <aside class="sidebar" id="appSidebar">
+    <div class="sb-top">
+      <div class="logo-img" style="background-image:url('/assets/img/logo.png')"></div>
+      <div class="brandname">Studio Priscila Santos</div>
+      <button class="toggle" id="btnToggle">≡</button>
+    </div>
+    <nav class="sb-menu">
+      <a class="sb-item" href="/dashboard.html"><span class="sb-ico">🏠</span><span class="sb-text">Início</span></a>
+      <a class="sb-item" href="/clientes.html"><span class="sb-ico">🧍</span><span class="sb-text">Cadastro Cliente</span></a>
+      <a class="sb-item" href="/produtos.html"><span class="sb-ico">📦</span><span class="sb-text">Cadastro Produtos</span></a>
+      <a class="sb-item" href="/servicos.html"><span class="sb-ico">💆</span><span class="sb-text">Cadastro Serviços</span></a>
+      <a class="sb-item" href="/agendamentos.html"><span class="sb-ico">📅</span><span class="sb-text">Agendamento</span></a>
+      <a class="sb-item active" href="/vendas.html"><span class="sb-ico">💰</span><span class="sb-text">Vendas</span></a>
+      <a class="sb-item" href="/despesas.html"><span class="sb-ico">💸</span><span class="sb-text">Despesas</span></a>
+      <a class="sb-item" href="/relatorios.html"><span class="sb-ico">📈</span><span class="sb-text">Relatórios</span></a>
+      <a class="sb-item" href="/index.html"><span class="sb-ico">🔓</span><span class="sb-text">Sair</span></a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header class="topbar"><div class="topbar-inner"><button id="btnToggleTop" class="toggle">≡</button><div class="logo"></div><div class="title">Vendas</div></div></header>
+    <div class="content">
+      <div class="card">
+        <h2>Nova venda</h2>
+        <form id="saleForm" class="form">
+          <div class="grid-2">
+            <div class="input"><label>Cliente*</label><select id="cliente" required></select></div>
+            <div class="input"><label>Data</label><input id="data" type="date" required></div>
+          </div>
+
+          <div class="section" style="margin-top:12px">
+            <div class="actions"><button type="button" class="btn btn-sm" id="addItem">Adicionar item</button></div>
+            <div id="items" class="section" style="display:grid; gap:10px; margin-top:10px"></div>
+          </div>
+
+          <div class="actions" style="justify-content:space-between; align-items:center">
+            <div><span class="badge">Total: R$ <span id="total">0,00</span></span></div>
+            <div>
+              <button class="btn" type="submit">Finalizar venda</button>
+              <div id="msg" class="note" style="margin-top:6px"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <template id="rowTpl">
+    <div class="card" style="padding:12px">
+      <div class="grid-2">
+        <div class="input">
+          <label>Tipo</label>
+          <select class="tipo">
+            <option value="produto">Produto</option>
+            <option value="servico">Serviço</option>
+          </select>
+        </div>
+        <div class="input">
+          <label>Item</label>
+          <select class="item"></select>
+        </div>
+        <div class="input">
+          <label>Qtd</label>
+          <input class="qtd" type="number" step="1" value="1">
+        </div>
+        <div class="input">
+          <label>Preço</label>
+          <input class="preco" type="number" step="0.01">
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-outline btn-sm remove">Remover</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script defer>
+  const $=s=>document.querySelector(s);
+  function toggleSidebar(){ $('#appSidebar')?.classList.toggle('collapsed'); }
+  $('#btnToggle')?.addEventListener('click', toggleSidebar);
+  $('#btnToggleTop')?.addEventListener('click', toggleSidebar);
+
+  async function fill(sel,url){ const r=await fetch(url); let d=null; try{d=await r.json();}catch(_){};
+    sel.innerHTML='<option value="">—</option>';
+    (d?.items||d||[]).forEach(x=>{const o=document.createElement('option');o.value=x.id; o.textContent=x.nome; o.dataset.preco=x.preco_venda||x.preco||0; sel.appendChild(o);});
+  }
+  fill($('#cliente'),'/api/clientes');
+
+  const items=$('#items'); const tpl=$('#rowTpl'); const totalEl=$('#total');
+  async function addRow(){
+    const node=tpl.content.firstElementChild.cloneNode(true);
+    const tipo=node.querySelector('.tipo'); const item=node.querySelector('.item');
+    const qtd=node.querySelector('.qtd'); const preco=node.querySelector('.preco');
+    const remove=node.querySelector('.remove');
+
+    async function load(){
+      const url = tipo.value==='produto'?'/api/produtos':'/api/servicos';
+      await fill(item,url);
+      const opt=item.options[item.selectedIndex]; preco.value=opt?.dataset?.preco||0;
+      recalc();
+    }
+    tipo.addEventListener('change', load);
+    item.addEventListener('change', ()=>{ const opt=item.options[item.selectedIndex]; preco.value=opt?.dataset?.preco||0; recalc();});
+    qtd.addEventListener('input', recalc); preco.addEventListener('input', recalc);
+    remove.addEventListener('click', ()=>{ node.remove(); recalc(); });
+
+    items.appendChild(node); await load();
+  }
+  function recalc(){
+    let tot=0;
+    items.querySelectorAll('.card').forEach(row=>{
+      const qtd=Number(row.querySelector('.qtd').value||0);
+      const preco=Number(row.querySelector('.preco').value||0);
+      tot += qtd*preco;
+    });
+    totalEl.textContent = (tot||0).toFixed(2).replace('.',',');
+  }
+  $('#addItem')?.addEventListener('click', addRow);
+
+  $('#saleForm')?.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const cliente_id=$('#cliente').value; const data=$('#data').value;
+    const itens=[...items.querySelectorAll('.card')].map(row=>{
+      return {
+        tipo: row.querySelector('.tipo').value,
+        item_id: row.querySelector('.item').value,
+        quantidade: Number(row.querySelector('.qtd').value||0),
+        preco: Number(row.querySelector('.preco').value||0),
+      };
+    });
+    const body={cliente_id,data,itens};
+    const r=await fetch('/api/vendas',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    let d=null; try{d=await r.json();}catch(_){}
+    const msg=$('#msg'); if(!r.ok){ msg.textContent=(d&&(d.error||d.message))||`Erro ${r.status}`; msg.className='note error'; return; }
+    msg.textContent='Venda registrada!'; msg.className='note ok'; e.target.reset(); items.innerHTML=''; recalc();
+  });
+
+  (function(){const q=new URLSearchParams(location.search); if(q.get('embed')==='1'||(self!==top)){document.querySelectorAll('.sb-menu a').forEach(a=>{const u=new URL(a.href,location.origin);u.searchParams.set('embed','1');a.href=u.pathname+u.search;});}})();
+
+  // linha inicial
+  addRow();
+  </script>
+</body>
+</html>
