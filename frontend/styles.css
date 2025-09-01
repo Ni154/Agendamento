@@ -1,1 +1,8 @@
+body { font-family: system-ui, -apple-system, Arial; margin: 20px; }
+header { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+#logo { height:40px;}
+section { border:1px solid #ddd; padding:12px; border-radius:10px; margin-bottom:16px; }
+input, select, button { margin:4px; padding:8px; }
+ul { list-style: none; padding: 0; }
+li { padding: 6px 0; border-bottom: 1px dashed #ddd; }
 
