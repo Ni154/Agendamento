@@ -1,1 +1,15 @@
+[build]
+  publish = "./frontend"
+  command = ""
+
+[[redirects]]
+  from = "/_api/*"
+  to = "https://api.seusite.com/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
