@@ -1,1 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SaaS Multi-tenant</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header>
+    <img id="logo" src="assets/logo-default.png" alt="logo" />
+    <h1 id="title">SaaS Multi-tenant</h1>
+  </header>
+
+  <section id="login">
+    <h2>Login</h2>
+    <input id="email" placeholder="email" />
+    <input id="password" type="password" placeholder="senha" />
+    <button id="btnLogin">Entrar</button>
+    <p id="loginStatus"></p>
+  </section>
+
+  <section id="app" style="display:none;">
+    <h2>Clientes</h2>
+    <div>
+      <input id="clienteNome" placeholder="Nome" />
+      <input id="clienteEmail" placeholder="Email" />
+      <input id="clienteTel" placeholder="Telefone" />
+      <button id="btnAddCliente">Adicionar</button>
+    </div>
+    <ul id="listaClientes"></ul>
+
+    <h2>Despesa</h2>
+    <div>
+      <select id="despTipo">
+        <option value="PRODUTO">NFe (Produto)</option>
+        <option value="SERVICO">NFS-e (Serviço)</option>
+      </select>
+      <input id="fornecedor" placeholder="Fornecedor (Razão)" />
+      <input id="cnpj" placeholder="CNPJ" />
+      <input id="emissao" placeholder="Data Emissão" />
+      <input id="valor" placeholder="Valor Total" />
+      <input id="centro" placeholder="Centro de Custo" />
+      <input id="pagto" placeholder="Forma Pagto" />
+      <input id="numero" placeholder="Número / RPS" />
+      <input id="serie" placeholder="Série (NFe)" />
+      <input id="chave" placeholder="Chave de Acesso (NFe)" />
+      <input id="municipio" placeholder="Município (NFS-e)" />
+      <input id="aliq" placeholder="Alíquota ISS (NFS-e)" />
+      <input id="disc" placeholder="Discriminação (NFS-e)" />
+      <button id="btnAddDesp">Lançar</button>
+    </div>
+    <ul id="listaDespesas"></ul>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
 
