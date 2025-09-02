@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, text, DateTime
 from sqlalchemy.dialects.postgresql import UUID
-from ..config.database import Base
+from config.database import Base
 
 class Tenant(Base):
     __tablename__ = "tenants"
