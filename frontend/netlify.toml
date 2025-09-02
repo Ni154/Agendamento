@@ -4,7 +4,7 @@
 
 [[redirects]]
   from = "/_api/*"
-  to = "agendamento-banco-de-dados.up.railway.app"
+  to = "https://agendamento-banco-de-dados.up.railway.app/:splat"  # use HTTPS e :splat
   status = 200
   force = true
 
@@ -12,4 +12,3 @@
   from = "/*"
   to = "/index.html"
   status = 200
-
