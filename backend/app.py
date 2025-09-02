@@ -1,16 +1,28 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
-from .config.settings import settings
-from .config.database import Base, engine, SessionLocal
-from .middleware.tenant import TenantInjectorMiddleware
-from .routes import health, auth_routes, tenant_routes, cliente_routes, produto_routes, servico_routes, agendamento_routes, venda_routes, despesa_routes
+
+from config.settings import settings
+from config.database import Base, engine, SessionLocal
+from middleware.tenant import TenantInjectorMiddleware
+from routes import (
+    health,
+    auth_routes,
+    tenant_routes,
+    cliente_routes,
+    produto_routes,
+    servico_routes,
+    agendamento_routes,
+    venda_routes,
+    despesa_routes,
+)
 
 app = FastAPI(title="SaaS Multi-tenant", version="1.0.0")
 
 def _install_cors(app: FastAPI):
     origins = settings.ALLOWED_ORIGINS
     allow_origins = []
+    
     allow_origin_regex = None
     allow_credentials = True
 
