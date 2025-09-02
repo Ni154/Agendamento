@@ -1,10 +1,10 @@
 [build]
-  publish = "./frontend"
+  publish = "."
   command = ""
 
 [[redirects]]
   from = "/_api/*"
-  to = "https://agendamento-banco-de-dados.up.railway.app/:splat"  # use HTTPS e :splat
+  to = "https://agendamento-banco-de-dados.up.railway.app/:splat"
   status = 200
   force = true
 
