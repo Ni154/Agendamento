@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, text, DateTime, Numeric
 from sqlalchemy.dialects.postgresql import UUID
-from ..config.database import Base
+from backend.config.database import get_db  # exemplo
+
 
 class Venda(Base):
     __tablename__ = "vendas"
