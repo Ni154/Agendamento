@@ -4,7 +4,7 @@
 
 [[redirects]]
   from = "/_api/*"
-  to = "https://api.seusite.com/:splat"
+  to = "agendamento-banco-de-dados.up.railway.app"
   status = 200
   force = true
 
