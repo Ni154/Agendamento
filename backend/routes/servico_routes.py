@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from ..config.database import get_db
-from ..middleware.auth import get_current_user
-from ..models.servico import Servico
-from ..schemas.servico import ServicoIn, ServicoOut
+from config.database import get_db
+from middleware.auth import get_current_user
+from models.servico import Servico
+from schemas.servico import ServicoIn, ServicoOut
 
 router = APIRouter(prefix="/servico", tags=["servico"])
 
