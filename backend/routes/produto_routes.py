@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from ..config.database import get_db
-from ..middleware.auth import get_current_user
-from ..models.produto import Produto
-from ..schemas.produto import ProdutoIn, ProdutoOut
+from config.database import get_db
+from middleware.auth import get_current_user
+from models.produto import Produto
+from schemas.produto import ProdutoIn, ProdutoOut
 
 router = APIRouter(prefix="/produto", tags=["produto"])
 
