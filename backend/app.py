@@ -1,11 +1,12 @@
+# backend/app.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from .config.settings import settings
-from .config.database import Base, engine, SessionLocal
-from .middleware.tenant import TenantInjectorMiddleware
-from .routes import (
+from backend.config.settings import settings
+from backend.config.database import Base, engine, SessionLocal
+from backend.middleware.tenant import TenantInjectorMiddleware
+from backend.routes import (
     health,
     auth_routes,
     tenant_routes,
@@ -62,12 +63,14 @@ app.include_router(venda_routes.router)
 app.include_router(despesa_routes.router)
 
 def _bootstrap_db():
+    # Extensões e criação de tabelas
     if settings.DATABASE_URL.startswith("postgresql"):
         with SessionLocal() as db:
             db.execute(text("CREATE EXTENSION IF NOT EXISTS pgcrypto;"))
             db.commit()
     Base.metadata.create_all(bind=engine)
 
+    # RLS apenas nas tabelas com 'tenant_id'
     if settings.DATABASE_URL.startswith("postgresql"):
         rls_tables = ["tenant_settings","users","clientes","produtos","servicos","agendamentos","vendas","despesas","reset_tokens"]
         with SessionLocal() as db:
