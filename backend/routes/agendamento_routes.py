@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from ..config.database import get_db
-from ..middleware.auth import get_current_user
-from ..models.agendamento import Agendamento
-from ..schemas.agendamento import AgendamentoIn, AgendamentoOut
+from config.database import get_db
+from middleware.auth import get_current_user
+from models.agendamento import Agendamento
+from schemas.agendamento import AgendamentoIn, AgendamentoOut
 
 router = APIRouter(prefix="/agendamentos", tags=["agendamentos"])
 
