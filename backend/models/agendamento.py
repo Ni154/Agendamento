@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, text, DateTime
 from sqlalchemy.dialects.postgresql import UUID
-from ..config.database import Base
+from backend.config.database import get_db  # exemplo
+
 
 class Agendamento(Base):
     __tablename__ = "agendamentos"
