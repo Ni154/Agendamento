@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, Header
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from ..config.database import get_db
-from ..config.security import create_jwt, hash_password, verify_password
-from ..schemas.tenant import TenantCreate, TenantSettingsOut
-from ..schemas.auth import LoginIn, TokenOut
-from ..models.tenant import Tenant, TenantSettings
-from ..models.user import User
-from ..middleware.tenant import set_current_tenant
+from config.database import get_db
+from config.security import create_jwt, hash_password, verify_password
+from schemas.tenant import TenantCreate, TenantSettingsOut
+from schemas.auth import LoginIn, TokenOut
+from models.tenant import Tenant, TenantSettings
+from models.user import User
+from middleware.tenant import set_current_tenant
 
 router = APIRouter(prefix="/tenant", tags=["tenant"])
 
