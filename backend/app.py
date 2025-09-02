@@ -2,10 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from backend.config.settings import settings
-from backend.config.database import Base, engine, SessionLocal
-from backend.middleware.tenant import TenantInjectorMiddleware
-from backend.routes import (
+from .config.settings import settings
+from .config.database import Base, engine, SessionLocal
+from .middleware.tenant import TenantInjectorMiddleware
+from .routes import (
     health,
     auth_routes,
     tenant_routes,
@@ -22,7 +22,6 @@ app = FastAPI(title="SaaS Multi-tenant", version="1.0.0")
 def _install_cors(app: FastAPI):
     origins = settings.ALLOWED_ORIGINS
     allow_origins = []
-    
     allow_origin_regex = None
     allow_credentials = True
 
@@ -63,14 +62,12 @@ app.include_router(venda_routes.router)
 app.include_router(despesa_routes.router)
 
 def _bootstrap_db():
-    # Extensões e criação de tabelas
     if settings.DATABASE_URL.startswith("postgresql"):
         with SessionLocal() as db:
             db.execute(text("CREATE EXTENSION IF NOT EXISTS pgcrypto;"))
             db.commit()
     Base.metadata.create_all(bind=engine)
 
-    # RLS apenas nas tabelas com 'tenant_id'
     if settings.DATABASE_URL.startswith("postgresql"):
         rls_tables = ["tenant_settings","users","clientes","produtos","servicos","agendamentos","vendas","despesas","reset_tokens"]
         with SessionLocal() as db:
@@ -91,4 +88,3 @@ def on_startup():
 @app.get("/")
 def root():
     return {"ok": True, "service": "SaaS Multi-tenant API"}
-
