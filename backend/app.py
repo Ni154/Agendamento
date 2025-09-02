@@ -2,10 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from config.settings import settings
-from config.database import Base, engine, SessionLocal
-from middleware.tenant import TenantInjectorMiddleware
-from routes import (
+from backend.config.settings import settings
+from backend.config.database import Base, engine, SessionLocal
+from backend.middleware.tenant import TenantInjectorMiddleware
+from backend.routes import (
     health,
     auth_routes,
     tenant_routes,
