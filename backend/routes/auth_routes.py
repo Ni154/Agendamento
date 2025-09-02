@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
-from ..middleware.auth import get_current_user
-from ..schemas.user import UserOut
+from middleware.auth import get_current_user
+from schemas.user import UserOut
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
