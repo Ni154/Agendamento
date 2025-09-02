@@ -2,10 +2,10 @@ from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from ..config.database import get_db
-from ..config.security import decode_jwt
-from ..models.user import User
-from .tenant import set_current_tenant
+from config.database import get_db
+from config.security import decode_jwt
+from models.user import User
+from tenant import set_current_tenant
 
 bearer = HTTPBearer(auto_error=False)
 
