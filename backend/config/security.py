@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 import jwt
 from passlib.hash import bcrypt
-from .settings import settings
+from settings import settings
 
 ALGO = "HS256"
 
