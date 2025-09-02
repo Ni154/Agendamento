@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from ..config.database import get_db
-from ..middleware.auth import get_current_user
-from ..models.venda import Venda
-from ..schemas.venda import VendaIn, VendaOut
+from config.database import get_db
+from middleware.auth import get_current_user
+from models.venda import Venda
+from schemas.venda import VendaIn, VendaOut
 
 router = APIRouter(prefix="/vendas", tags=["vendas"])
 
